@@ -1,13 +1,13 @@
 # BP-rozpoznavani-znakove-reci
 Rozpoznávání datasetu LSA64 pomocí frameworku MMAction2. V tomto repozitáři jsou soubory použité k vypracování Bakalářské práce rozpoznávání jednotlivých znaků znakového jazyka a návod na jejich použití. Práce je zaměřena na rozpoznávání datasetu LSA64. Jako pre-requisite je využit framework MMAction2 https://github.com/open-mmlab/mmaction2.
 # Použitý software
-python 3.7.9,
-torch 1.8.0+cu101,
-torchvision 0.9.0+cu101,
-opencv 3.4.2,
-mmcv-full 1.3.9,
-mmaction2 0.20.0,
-matplotlib 3.4.3
+- python 3.7.9,
+- torch 1.8.0+cu101,
+- torchvision 0.9.0+cu101,
+- opencv 3.4.2,
+- mmcv-full 1.3.9,
+- mmaction2 0.20.0,
+- matplotlib 3.4.3
 
 # Návod na použití
 Pro použití je potřeba nainstalovat použitý software a přesunout soubory z tohoto repozitáře do složky MMAction2.
