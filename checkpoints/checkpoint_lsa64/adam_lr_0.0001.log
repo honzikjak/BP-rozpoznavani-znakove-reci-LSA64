@@ -1,0 +1,494 @@
+2022-04-13 00:21:52,192 - mmaction - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: win32
+Python: 3.7.9 (default, Aug 31 2020, 17:10:11) [MSC v.1916 64 bit (AMD64)]
+CUDA available: True
+GPU 0: NVIDIA GeForce GTX 1050
+CUDA_HOME: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+NVCC: Not Available
+GCC: n/a
+PyTorch: 1.8.0+cu101
+PyTorch compiling details: PyTorch built with:
+  - C++ Version: 199711
+  - MSVC 192829337
+  - Intel(R) Math Kernel Library Version 2020.0.2 Product Build 20200624 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.7.0 (Git Hash 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+  - OpenMP 2019
+  - CPU capability usage: AVX2
+  - CUDA Runtime 10.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 7.6.4
+  - Magma 2.5.4
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=10.1, CUDNN_VERSION=7.6.4, CXX_COMPILER=C:/w/b/windows/tmp_bin/sccache-cl.exe, CXX_FLAGS=/DWIN32 /D_WINDOWS /GR /EHsc /w /bigobj -DUSE_PTHREADPOOL -openmp:experimental -DNDEBUG -DUSE_FBGEMM -DUSE_XNNPACK, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=OFF, USE_OPENMP=ON, 
+
+TorchVision: 0.9.0+cu101
+OpenCV: 4.5.4
+MMCV: 1.3.18
+MMCV Compiler: n/a
+MMCV CUDA Compiler: n/a
+MMAction2: 0.20.0+f0c8b15
+------------------------------------------------------------
+
+2022-04-13 00:21:52,192 - mmaction - INFO - Distributed training: False
+2022-04-13 00:21:52,333 - mmaction - INFO - Config: model = dict(
+    type='Recognizer2D',
+    backbone=dict(
+        type='ResNet',
+        pretrained='torchvision://resnet50',
+        depth=50,
+        norm_eval=False),
+    cls_head=dict(
+        type='TSNHead',
+        num_classes=64,
+        in_channels=2048,
+        spatial_type='avg',
+        consensus=dict(type='AvgConsensus', dim=1),
+        dropout_ratio=0.4,
+        init_std=0.01),
+    train_cfg=None,
+    test_cfg=dict(average_clips=None))
+optimizer = dict(
+    type='Adam',
+    lr=0.0001,
+    betas=(0.9, 0.999),
+    eps=1e-08,
+    weight_decay=0,
+    amsgrad=False)
+optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
+lr_config = dict(policy='step', step=[150])
+total_epochs = 140
+checkpoint_config = dict(interval=1)
+log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook')])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = 'C:/Users/honzi/mmaction2/checkpoints/tsn_r50_video_1x1x8_100e_lsa64_rgb_20200702-568cde33.pth'
+workflow = [('train', 1), ('val', 1)]
+dataset_type = 'VideoDataset'
+data_root = 'C:/Users/honzi/mmaction2/data/lsa64/'
+data_root_val = 'C:/Users/honzi/mmaction2/data/lsa64/'
+ann_file_train = 'C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_train_list.txt'
+ann_file_val = 'C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_val_list.txt'
+ann_file_test = 'C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_test_list.txt'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
+data = dict(
+    videos_per_gpu=3,
+    workers_per_gpu=1,
+    test_dataloader=dict(videos_per_gpu=1),
+    train=dict(
+        type='VideoDataset',
+        ann_file='C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_train_list.txt',
+        data_prefix='C:/Users/honzi/mmaction2/data/lsa64/',
+        pipeline=[
+            dict(type='DecordInit'),
+            dict(
+                type='SampleFrames', clip_len=1, frame_interval=1,
+                num_clips=8),
+            dict(type='DecordDecode'),
+            dict(
+                type='MultiScaleCrop',
+                input_size=224,
+                random_crop=False,
+                max_wh_scale_gap=1),
+            dict(type='Resize', scale=(224, 224), keep_ratio=False),
+            dict(type='Flip', flip_ratio=0),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_bgr=False),
+            dict(type='FormatShape', input_format='NCHW'),
+            dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
+            dict(type='ToTensor', keys=['imgs', 'label'])
+        ]),
+    val=dict(
+        type='VideoDataset',
+        ann_file='C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_val_list.txt',
+        data_prefix='C:/Users/honzi/mmaction2/data/lsa64/',
+        pipeline=[
+            dict(type='DecordInit'),
+            dict(
+                type='SampleFrames',
+                clip_len=1,
+                frame_interval=1,
+                num_clips=8,
+                test_mode=True),
+            dict(type='DecordDecode'),
+            dict(type='Resize', scale=(-1, 256)),
+            dict(type='CenterCrop', crop_size=224),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_bgr=False),
+            dict(type='FormatShape', input_format='NCHW'),
+            dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
+            dict(type='ToTensor', keys=['imgs'])
+        ]),
+    test=dict(
+        type='VideoDataset',
+        ann_file='C:/Users/honzi/mmaction2/data/lsa64/lsa64_ann_test_list.txt',
+        data_prefix='C:/Users/honzi/mmaction2/data/lsa64/',
+        pipeline=[
+            dict(type='DecordInit'),
+            dict(
+                type='SampleFrames',
+                clip_len=1,
+                frame_interval=1,
+                num_clips=8,
+                test_mode=True),
+            dict(type='DecordDecode'),
+            dict(type='Resize', scale=(-1, 256)),
+            dict(type='TenCrop', crop_size=224),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_bgr=False),
+            dict(type='FormatShape', input_format='NCHW'),
+            dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
+            dict(type='ToTensor', keys=['imgs'])
+        ]))
+evaluation = dict(interval=1, metrics=['top_k_accuracy'])
+work_dir = 'C:/Users/honzi/mmaction2/checkpoints/checkpoint_lsa64'
+gpu_ids = range(0, 1)
+omnisource = False
+module_hooks = []
+
+2022-04-13 00:21:52,348 - mmaction - INFO - Set random seed to 1892746329, deterministic: False
+2022-04-13 00:21:53,039 - mmaction - INFO - These parameters in pretrained checkpoint are not loaded: {'fc.bias', 'fc.weight'}
+2022-04-13 00:21:58,450 - mmaction - INFO - load checkpoint from local path: C:/Users/honzi/mmaction2/checkpoints/tsn_r50_video_1x1x8_100e_lsa64_rgb_20200702-568cde33.pth
+2022-04-13 00:21:58,701 - mmaction - WARNING - The model and loaded state dict do not match exactly
+
+size mismatch for cls_head.fc_cls.weight: copying a param with shape torch.Size([400, 2048]) from checkpoint, the shape in current model is torch.Size([64, 2048]).
+size mismatch for cls_head.fc_cls.bias: copying a param with shape torch.Size([400]) from checkpoint, the shape in current model is torch.Size([64]).
+2022-04-13 00:21:58,732 - mmaction - INFO - resumed epoch 95, iter 89300
+2022-04-13 00:21:58,732 - mmaction - INFO - Start running, host: honzi@LAPTOP-1NMNCGNE, work_dir: C:\Users\honzi\mmaction2\checkpoints\checkpoint_lsa64
+2022-04-13 00:21:58,732 - mmaction - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2022-04-13 00:21:58,732 - mmaction - INFO - workflow: [('train', 1), ('val', 1)], max: 140 epochs
+2022-04-13 00:21:58,732 - mmaction - INFO - Checkpoints will be saved to C:\Users\honzi\mmaction2\checkpoints\checkpoint_lsa64 by HardDiskBackend.
+2022-04-13 00:22:41,559 - mmaction - INFO - Epoch [96][20/768]	lr: 1.000e-04, eta: 10:49:22, time: 2.141, data_time: 1.337, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1167, loss_cls: 4.2039, loss: 4.2039, grad_norm: 14.6912
+2022-04-13 00:23:20,670 - mmaction - INFO - Epoch [96][40/768]	lr: 1.000e-04, eta: 10:20:33, time: 1.955, data_time: 1.343, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1500, loss_cls: 4.1348, loss: 4.1348, grad_norm: 13.6101
+2022-04-13 00:23:54,350 - mmaction - INFO - Epoch [96][60/768]	lr: 1.000e-04, eta: 9:43:13, time: 1.685, data_time: 1.089, memory: 2392, top1_acc: 0.0833, top5_acc: 0.1333, loss_cls: 4.1932, loss: 4.1932, grad_norm: 12.4118
+2022-04-13 00:24:28,491 - mmaction - INFO - Epoch [96][80/768]	lr: 1.000e-04, eta: 9:25:54, time: 1.706, data_time: 1.111, memory: 2392, top1_acc: 0.0500, top5_acc: 0.2167, loss_cls: 4.1116, loss: 4.1116, grad_norm: 11.7981
+2022-04-13 00:25:02,219 - mmaction - INFO - Epoch [96][100/768]	lr: 1.000e-04, eta: 9:14:04, time: 1.686, data_time: 1.092, memory: 2392, top1_acc: 0.0000, top5_acc: 0.1000, loss_cls: 4.2831, loss: 4.2831, grad_norm: 10.5592
+2022-04-13 00:25:34,535 - mmaction - INFO - Epoch [96][120/768]	lr: 1.000e-04, eta: 9:02:27, time: 1.616, data_time: 1.019, memory: 2392, top1_acc: 0.0167, top5_acc: 0.1833, loss_cls: 4.1047, loss: 4.1047, grad_norm: 9.9894
+2022-04-13 00:26:07,266 - mmaction - INFO - Epoch [96][140/768]	lr: 1.000e-04, eta: 8:54:56, time: 1.637, data_time: 1.044, memory: 2392, top1_acc: 0.0167, top5_acc: 0.1167, loss_cls: 4.2057, loss: 4.2057, grad_norm: 10.5491
+2022-04-13 00:26:41,561 - mmaction - INFO - Epoch [96][160/768]	lr: 1.000e-04, eta: 8:52:02, time: 1.714, data_time: 1.118, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1167, loss_cls: 4.1142, loss: 4.1142, grad_norm: 9.5736
+2022-04-13 00:27:14,567 - mmaction - INFO - Epoch [96][180/768]	lr: 1.000e-04, eta: 8:47:32, time: 1.650, data_time: 1.054, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1167, loss_cls: 4.0482, loss: 4.0482, grad_norm: 9.9106
+2022-04-13 00:27:46,978 - mmaction - INFO - Epoch [96][200/768]	lr: 1.000e-04, eta: 8:42:54, time: 1.620, data_time: 1.025, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1500, loss_cls: 3.9545, loss: 3.9545, grad_norm: 10.5551
+2022-04-13 00:28:18,163 - mmaction - INFO - Epoch [96][220/768]	lr: 1.000e-04, eta: 8:37:21, time: 1.559, data_time: 0.964, memory: 2392, top1_acc: 0.0667, top5_acc: 0.1333, loss_cls: 4.0634, loss: 4.0634, grad_norm: 11.9766
+2022-04-13 00:28:50,534 - mmaction - INFO - Epoch [96][240/768]	lr: 1.000e-04, eta: 8:34:09, time: 1.619, data_time: 1.022, memory: 2392, top1_acc: 0.0500, top5_acc: 0.2167, loss_cls: 3.9181, loss: 3.9181, grad_norm: 12.1476
+2022-04-13 00:29:23,054 - mmaction - INFO - Epoch [96][260/768]	lr: 1.000e-04, eta: 8:31:31, time: 1.626, data_time: 1.027, memory: 2392, top1_acc: 0.0500, top5_acc: 0.1667, loss_cls: 3.9785, loss: 3.9785, grad_norm: 13.6445
+2022-04-13 00:29:55,464 - mmaction - INFO - Epoch [96][280/768]	lr: 1.000e-04, eta: 8:29:02, time: 1.620, data_time: 1.026, memory: 2392, top1_acc: 0.0167, top5_acc: 0.1833, loss_cls: 4.0386, loss: 4.0386, grad_norm: 10.7662
+2022-04-13 00:30:27,464 - mmaction - INFO - Epoch [96][300/768]	lr: 1.000e-04, eta: 8:26:26, time: 1.600, data_time: 1.006, memory: 2392, top1_acc: 0.0333, top5_acc: 0.3167, loss_cls: 3.6544, loss: 3.6544, grad_norm: 12.8563
+2022-04-13 00:31:01,578 - mmaction - INFO - Epoch [96][320/768]	lr: 1.000e-04, eta: 8:26:04, time: 1.706, data_time: 1.108, memory: 2392, top1_acc: 0.0000, top5_acc: 0.1667, loss_cls: 3.8754, loss: 3.8754, grad_norm: 12.5495
+2022-04-13 00:31:34,239 - mmaction - INFO - Epoch [96][340/768]	lr: 1.000e-04, eta: 8:24:23, time: 1.632, data_time: 1.035, memory: 2392, top1_acc: 0.0333, top5_acc: 0.2167, loss_cls: 3.7994, loss: 3.7994, grad_norm: 12.6328
+2022-04-13 00:32:07,244 - mmaction - INFO - Epoch [96][360/768]	lr: 1.000e-04, eta: 8:23:07, time: 1.650, data_time: 1.055, memory: 2392, top1_acc: 0.0333, top5_acc: 0.1833, loss_cls: 3.8501, loss: 3.8501, grad_norm: 13.1965
+2022-04-13 00:32:40,722 - mmaction - INFO - Epoch [96][380/768]	lr: 1.000e-04, eta: 8:22:18, time: 1.674, data_time: 1.076, memory: 2392, top1_acc: 0.0167, top5_acc: 0.1000, loss_cls: 3.8067, loss: 3.8067, grad_norm: 12.7728
+2022-04-13 00:33:13,664 - mmaction - INFO - Epoch [96][400/768]	lr: 1.000e-04, eta: 8:21:06, time: 1.647, data_time: 1.049, memory: 2392, top1_acc: 0.1333, top5_acc: 0.3167, loss_cls: 3.6127, loss: 3.6127, grad_norm: 13.7711
+2022-04-13 00:33:46,468 - mmaction - INFO - Epoch [96][420/768]	lr: 1.000e-04, eta: 8:19:53, time: 1.640, data_time: 1.046, memory: 2392, top1_acc: 0.0167, top5_acc: 0.2500, loss_cls: 3.7703, loss: 3.7703, grad_norm: 13.2470
+2022-04-13 00:34:19,837 - mmaction - INFO - Epoch [96][440/768]	lr: 1.000e-04, eta: 8:19:06, time: 1.669, data_time: 1.069, memory: 2392, top1_acc: 0.0667, top5_acc: 0.2167, loss_cls: 3.8127, loss: 3.8127, grad_norm: 12.8999
+2022-04-13 00:34:51,903 - mmaction - INFO - Epoch [96][460/768]	lr: 1.000e-04, eta: 8:17:30, time: 1.603, data_time: 1.007, memory: 2392, top1_acc: 0.1000, top5_acc: 0.2667, loss_cls: 3.7104, loss: 3.7104, grad_norm: 13.8552
+2022-04-13 00:35:26,149 - mmaction - INFO - Epoch [96][480/768]	lr: 1.000e-04, eta: 8:17:20, time: 1.712, data_time: 1.113, memory: 2392, top1_acc: 0.0667, top5_acc: 0.3667, loss_cls: 3.4671, loss: 3.4671, grad_norm: 13.5130
+2022-04-13 00:35:59,872 - mmaction - INFO - Epoch [96][500/768]	lr: 1.000e-04, eta: 8:16:48, time: 1.685, data_time: 1.088, memory: 2392, top1_acc: 0.0833, top5_acc: 0.2667, loss_cls: 3.6314, loss: 3.6314, grad_norm: 15.2896
+2022-04-13 00:36:33,690 - mmaction - INFO - Epoch [96][520/768]	lr: 1.000e-04, eta: 8:16:21, time: 1.691, data_time: 1.092, memory: 2392, top1_acc: 0.1167, top5_acc: 0.3833, loss_cls: 3.4808, loss: 3.4808, grad_norm: 14.7087
+2022-04-13 00:37:07,485 - mmaction - INFO - Epoch [96][540/768]	lr: 1.000e-04, eta: 8:15:52, time: 1.690, data_time: 1.096, memory: 2392, top1_acc: 0.1167, top5_acc: 0.4000, loss_cls: 3.4434, loss: 3.4434, grad_norm: 13.3167
+2022-04-13 00:37:40,224 - mmaction - INFO - Epoch [96][560/768]	lr: 1.000e-04, eta: 8:14:49, time: 1.637, data_time: 1.040, memory: 2392, top1_acc: 0.0333, top5_acc: 0.3333, loss_cls: 3.4490, loss: 3.4490, grad_norm: 15.0753
+2022-04-13 00:38:12,211 - mmaction - INFO - Epoch [96][580/768]	lr: 1.000e-04, eta: 8:13:26, time: 1.600, data_time: 1.004, memory: 2392, top1_acc: 0.0500, top5_acc: 0.3833, loss_cls: 3.5311, loss: 3.5311, grad_norm: 14.7902
+2022-04-13 00:38:44,590 - mmaction - INFO - Epoch [96][600/768]	lr: 1.000e-04, eta: 8:12:17, time: 1.618, data_time: 1.022, memory: 2392, top1_acc: 0.0833, top5_acc: 0.2667, loss_cls: 3.4614, loss: 3.4614, grad_norm: 14.6330
+2022-04-13 00:39:18,460 - mmaction - INFO - Epoch [96][620/768]	lr: 1.000e-04, eta: 8:11:54, time: 1.694, data_time: 1.097, memory: 2392, top1_acc: 0.0500, top5_acc: 0.4000, loss_cls: 3.2946, loss: 3.2946, grad_norm: 14.7694
+2022-04-13 00:39:49,880 - mmaction - INFO - Epoch [96][640/768]	lr: 1.000e-04, eta: 8:10:22, time: 1.570, data_time: 0.975, memory: 2392, top1_acc: 0.0333, top5_acc: 0.3500, loss_cls: 3.4097, loss: 3.4097, grad_norm: 15.5552
+2022-04-13 00:40:21,394 - mmaction - INFO - Epoch [96][660/768]	lr: 1.000e-04, eta: 8:08:56, time: 1.576, data_time: 0.977, memory: 2392, top1_acc: 0.1167, top5_acc: 0.3833, loss_cls: 3.3038, loss: 3.3038, grad_norm: 15.7402
+2022-04-13 00:40:54,148 - mmaction - INFO - Epoch [96][680/768]	lr: 1.000e-04, eta: 8:08:06, time: 1.638, data_time: 1.042, memory: 2392, top1_acc: 0.0500, top5_acc: 0.3333, loss_cls: 3.4524, loss: 3.4524, grad_norm: 13.9760
+2022-04-13 00:41:26,403 - mmaction - INFO - Epoch [96][700/768]	lr: 1.000e-04, eta: 8:07:04, time: 1.613, data_time: 1.014, memory: 2392, top1_acc: 0.0833, top5_acc: 0.4333, loss_cls: 3.3036, loss: 3.3036, grad_norm: 14.6479
+2022-04-13 00:41:59,912 - mmaction - INFO - Epoch [96][720/768]	lr: 1.000e-04, eta: 8:06:34, time: 1.675, data_time: 1.081, memory: 2392, top1_acc: 0.0833, top5_acc: 0.4500, loss_cls: 3.2027, loss: 3.2027, grad_norm: 14.8090
+2022-04-13 00:42:31,836 - mmaction - INFO - Epoch [96][740/768]	lr: 1.000e-04, eta: 8:05:27, time: 1.596, data_time: 0.997, memory: 2392, top1_acc: 0.2000, top5_acc: 0.5500, loss_cls: 2.9701, loss: 2.9701, grad_norm: 15.4594
+2022-04-13 00:43:04,607 - mmaction - INFO - Epoch [96][760/768]	lr: 1.000e-04, eta: 8:04:41, time: 1.639, data_time: 1.043, memory: 2392, top1_acc: 0.1333, top5_acc: 0.3667, loss_cls: 3.2727, loss: 3.2727, grad_norm: 14.9237
+2022-04-13 00:43:17,863 - mmaction - INFO - Saving checkpoint at 96 epochs
+2022-04-13 00:48:41,163 - mmaction - INFO - Epoch(val) [96][192]	top1_acc: 0.1771, top5_acc: 0.5677, loss_cls: 2.8344, loss: 2.8344
+2022-04-13 00:49:21,369 - mmaction - INFO - Epoch [97][20/768]	lr: 1.000e-04, eta: 8:01:31, time: 2.010, data_time: 1.412, memory: 2392, top1_acc: 0.1000, top5_acc: 0.5167, loss_cls: 3.1379, loss: 3.1379, grad_norm: 15.6943
+2022-04-13 00:49:53,342 - mmaction - INFO - Epoch [97][40/768]	lr: 1.000e-04, eta: 8:00:33, time: 1.598, data_time: 1.001, memory: 2392, top1_acc: 0.0833, top5_acc: 0.5000, loss_cls: 3.1095, loss: 3.1095, grad_norm: 15.4933
+2022-04-13 00:50:25,762 - mmaction - INFO - Epoch [97][60/768]	lr: 1.000e-04, eta: 7:59:45, time: 1.621, data_time: 1.021, memory: 2392, top1_acc: 0.1667, top5_acc: 0.5500, loss_cls: 3.0453, loss: 3.0453, grad_norm: 14.7417
+2022-04-13 00:50:59,110 - mmaction - INFO - Epoch [97][80/768]	lr: 1.000e-04, eta: 7:59:17, time: 1.667, data_time: 1.072, memory: 2392, top1_acc: 0.2000, top5_acc: 0.5333, loss_cls: 2.9160, loss: 2.9160, grad_norm: 15.3744
+2022-04-13 00:51:31,322 - mmaction - INFO - Epoch [97][100/768]	lr: 1.000e-04, eta: 7:58:26, time: 1.611, data_time: 1.015, memory: 2392, top1_acc: 0.1333, top5_acc: 0.4833, loss_cls: 3.1253, loss: 3.1253, grad_norm: 15.0132
+2022-04-13 00:52:03,220 - mmaction - INFO - Epoch [97][120/768]	lr: 1.000e-04, eta: 7:57:29, time: 1.594, data_time: 0.999, memory: 2392, top1_acc: 0.2000, top5_acc: 0.4833, loss_cls: 3.0478, loss: 3.0478, grad_norm: 15.5382
+2022-04-13 00:52:34,396 - mmaction - INFO - Epoch [97][140/768]	lr: 1.000e-04, eta: 7:56:20, time: 1.559, data_time: 0.962, memory: 2392, top1_acc: 0.1500, top5_acc: 0.5667, loss_cls: 2.9418, loss: 2.9418, grad_norm: 15.4802
+2022-04-13 00:53:07,377 - mmaction - INFO - Epoch [97][160/768]	lr: 1.000e-04, eta: 7:55:47, time: 1.650, data_time: 1.048, memory: 2392, top1_acc: 0.1833, top5_acc: 0.6000, loss_cls: 2.9564, loss: 2.9564, grad_norm: 14.6654
+2022-04-13 00:53:41,521 - mmaction - INFO - Epoch [97][180/768]	lr: 1.000e-04, eta: 7:55:34, time: 1.707, data_time: 1.115, memory: 2392, top1_acc: 0.2000, top5_acc: 0.5000, loss_cls: 2.9059, loss: 2.9059, grad_norm: 14.7829
+2022-04-13 00:54:14,326 - mmaction - INFO - Epoch [97][200/768]	lr: 1.000e-04, eta: 7:54:57, time: 1.639, data_time: 1.043, memory: 2392, top1_acc: 0.1333, top5_acc: 0.5333, loss_cls: 2.9988, loss: 2.9988, grad_norm: 15.5945
+2022-04-13 00:54:46,648 - mmaction - INFO - Epoch [97][220/768]	lr: 1.000e-04, eta: 7:54:11, time: 1.616, data_time: 1.017, memory: 2392, top1_acc: 0.1833, top5_acc: 0.5167, loss_cls: 2.8048, loss: 2.8048, grad_norm: 15.1834
+2022-04-13 00:55:18,922 - mmaction - INFO - Epoch [97][240/768]	lr: 1.000e-04, eta: 7:53:26, time: 1.614, data_time: 1.018, memory: 2392, top1_acc: 0.2500, top5_acc: 0.5833, loss_cls: 2.7690, loss: 2.7690, grad_norm: 15.1248
+2022-04-13 00:55:51,576 - mmaction - INFO - Epoch [97][260/768]	lr: 1.000e-04, eta: 7:52:47, time: 1.633, data_time: 1.036, memory: 2392, top1_acc: 0.2667, top5_acc: 0.6000, loss_cls: 2.7368, loss: 2.7368, grad_norm: 15.3475
+2022-04-13 00:56:23,724 - mmaction - INFO - Epoch [97][280/768]	lr: 1.000e-04, eta: 7:52:00, time: 1.608, data_time: 1.009, memory: 2392, top1_acc: 0.1500, top5_acc: 0.6000, loss_cls: 2.8741, loss: 2.8741, grad_norm: 15.5707
+2022-04-13 00:56:55,248 - mmaction - INFO - Epoch [97][300/768]	lr: 1.000e-04, eta: 7:51:04, time: 1.576, data_time: 0.982, memory: 2392, top1_acc: 0.2000, top5_acc: 0.5500, loss_cls: 2.8678, loss: 2.8678, grad_norm: 15.4617
+2022-04-13 00:57:29,481 - mmaction - INFO - Epoch [97][320/768]	lr: 1.000e-04, eta: 7:50:50, time: 1.711, data_time: 1.114, memory: 2392, top1_acc: 0.1833, top5_acc: 0.5333, loss_cls: 2.9348, loss: 2.9348, grad_norm: 15.5658
+2022-04-13 00:58:02,366 - mmaction - INFO - Epoch [97][340/768]	lr: 1.000e-04, eta: 7:50:16, time: 1.645, data_time: 1.046, memory: 2392, top1_acc: 0.2167, top5_acc: 0.6500, loss_cls: 2.8171, loss: 2.8171, grad_norm: 14.7784
+2022-04-13 00:58:34,765 - mmaction - INFO - Epoch [97][360/768]	lr: 1.000e-04, eta: 7:49:34, time: 1.620, data_time: 1.024, memory: 2392, top1_acc: 0.1833, top5_acc: 0.5833, loss_cls: 2.8079, loss: 2.8079, grad_norm: 15.7819
+2022-04-13 00:59:07,102 - mmaction - INFO - Epoch [97][380/768]	lr: 1.000e-04, eta: 7:48:52, time: 1.616, data_time: 1.018, memory: 2392, top1_acc: 0.2833, top5_acc: 0.6833, loss_cls: 2.6972, loss: 2.6972, grad_norm: 15.6540
+2022-04-13 00:59:40,616 - mmaction - INFO - Epoch [97][400/768]	lr: 1.000e-04, eta: 7:48:27, time: 1.677, data_time: 1.081, memory: 2392, top1_acc: 0.1667, top5_acc: 0.6167, loss_cls: 2.8958, loss: 2.8958, grad_norm: 15.8767
+2022-04-13 01:00:12,483 - mmaction - INFO - Epoch [97][420/768]	lr: 1.000e-04, eta: 7:47:39, time: 1.593, data_time: 0.993, memory: 2392, top1_acc: 0.3000, top5_acc: 0.7500, loss_cls: 2.5430, loss: 2.5430, grad_norm: 15.3599
+2022-04-13 01:00:46,301 - mmaction - INFO - Epoch [97][440/768]	lr: 1.000e-04, eta: 7:47:18, time: 1.690, data_time: 1.092, memory: 2392, top1_acc: 0.2333, top5_acc: 0.6500, loss_cls: 2.7872, loss: 2.7872, grad_norm: 15.2783
+2022-04-13 01:01:19,893 - mmaction - INFO - Epoch [97][460/768]	lr: 1.000e-04, eta: 7:46:54, time: 1.680, data_time: 1.079, memory: 2392, top1_acc: 0.3500, top5_acc: 0.7167, loss_cls: 2.4925, loss: 2.4925, grad_norm: 15.0160
+2022-04-13 01:01:51,820 - mmaction - INFO - Epoch [97][480/768]	lr: 1.000e-04, eta: 7:46:06, time: 1.596, data_time: 1.002, memory: 2392, top1_acc: 0.2333, top5_acc: 0.7000, loss_cls: 2.5260, loss: 2.5260, grad_norm: 15.3809
+2022-04-13 01:02:23,418 - mmaction - INFO - Epoch [97][500/768]	lr: 1.000e-04, eta: 7:45:15, time: 1.580, data_time: 0.984, memory: 2392, top1_acc: 0.2833, top5_acc: 0.7333, loss_cls: 2.5204, loss: 2.5204, grad_norm: 15.3428
+2022-04-13 01:02:56,241 - mmaction - INFO - Epoch [97][520/768]	lr: 1.000e-04, eta: 7:44:41, time: 1.641, data_time: 1.046, memory: 2392, top1_acc: 0.1833, top5_acc: 0.7000, loss_cls: 2.6709, loss: 2.6709, grad_norm: 15.7253
+2022-04-13 01:03:28,876 - mmaction - INFO - Epoch [97][540/768]	lr: 1.000e-04, eta: 7:44:04, time: 1.633, data_time: 1.040, memory: 2392, top1_acc: 0.2833, top5_acc: 0.6833, loss_cls: 2.5833, loss: 2.5833, grad_norm: 15.8020
+2022-04-13 01:04:00,664 - mmaction - INFO - Epoch [97][560/768]	lr: 1.000e-04, eta: 7:43:16, time: 1.589, data_time: 0.992, memory: 2392, top1_acc: 0.2167, top5_acc: 0.7333, loss_cls: 2.5334, loss: 2.5334, grad_norm: 15.3067
+2022-04-13 01:04:34,089 - mmaction - INFO - Epoch [97][580/768]	lr: 1.000e-04, eta: 7:42:50, time: 1.671, data_time: 1.075, memory: 2392, top1_acc: 0.3000, top5_acc: 0.7000, loss_cls: 2.5064, loss: 2.5064, grad_norm: 15.0192
+2022-04-13 01:05:07,949 - mmaction - INFO - Epoch [97][600/768]	lr: 1.000e-04, eta: 7:42:29, time: 1.693, data_time: 1.098, memory: 2392, top1_acc: 0.2667, top5_acc: 0.7500, loss_cls: 2.4930, loss: 2.4930, grad_norm: 15.2425
+2022-04-13 01:05:41,026 - mmaction - INFO - Epoch [97][620/768]	lr: 1.000e-04, eta: 7:41:57, time: 1.654, data_time: 1.056, memory: 2392, top1_acc: 0.2167, top5_acc: 0.7167, loss_cls: 2.4311, loss: 2.4311, grad_norm: 16.2477
+2022-04-13 01:06:13,775 - mmaction - INFO - Epoch [97][640/768]	lr: 1.000e-04, eta: 7:41:22, time: 1.637, data_time: 1.041, memory: 2392, top1_acc: 0.4333, top5_acc: 0.7000, loss_cls: 2.4375, loss: 2.4375, grad_norm: 15.1817
+2022-04-13 01:06:47,914 - mmaction - INFO - Epoch [97][660/768]	lr: 1.000e-04, eta: 7:41:03, time: 1.707, data_time: 1.108, memory: 2392, top1_acc: 0.2167, top5_acc: 0.7333, loss_cls: 2.6023, loss: 2.6023, grad_norm: 16.1756
+2022-04-13 01:07:20,033 - mmaction - INFO - Epoch [97][680/768]	lr: 1.000e-04, eta: 7:40:21, time: 1.606, data_time: 1.009, memory: 2392, top1_acc: 0.3167, top5_acc: 0.8333, loss_cls: 2.3793, loss: 2.3793, grad_norm: 15.3286
+2022-04-13 01:07:52,512 - mmaction - INFO - Epoch [97][700/768]	lr: 1.000e-04, eta: 7:39:43, time: 1.624, data_time: 1.027, memory: 2392, top1_acc: 0.3667, top5_acc: 0.7500, loss_cls: 2.3043, loss: 2.3043, grad_norm: 14.9881
+2022-04-13 01:08:25,055 - mmaction - INFO - Epoch [97][720/768]	lr: 1.000e-04, eta: 7:39:06, time: 1.628, data_time: 1.031, memory: 2392, top1_acc: 0.3833, top5_acc: 0.8333, loss_cls: 2.2743, loss: 2.2743, grad_norm: 15.2151
+2022-04-13 01:08:56,813 - mmaction - INFO - Epoch [97][740/768]	lr: 1.000e-04, eta: 7:38:20, time: 1.588, data_time: 0.993, memory: 2392, top1_acc: 0.3333, top5_acc: 0.8500, loss_cls: 2.2296, loss: 2.2296, grad_norm: 15.4952
+2022-04-13 01:09:28,992 - mmaction - INFO - Epoch [97][760/768]	lr: 1.000e-04, eta: 7:37:39, time: 1.608, data_time: 1.012, memory: 2392, top1_acc: 0.2500, top5_acc: 0.6500, loss_cls: 2.7284, loss: 2.7284, grad_norm: 15.6179
+2022-04-13 01:09:42,517 - mmaction - INFO - Saving checkpoint at 97 epochs
+2022-04-13 01:15:05,722 - mmaction - INFO - Epoch(val) [97][192]	top1_acc: 0.3125, top5_acc: 0.8542, loss_cls: 2.1712, loss: 2.1712
+2022-04-13 01:15:47,630 - mmaction - INFO - Epoch [98][20/768]	lr: 1.000e-04, eta: 7:36:08, time: 2.094, data_time: 1.494, memory: 2392, top1_acc: 0.3000, top5_acc: 0.8667, loss_cls: 2.2979, loss: 2.2979, grad_norm: 15.0146
+2022-04-13 01:16:20,004 - mmaction - INFO - Epoch [98][40/768]	lr: 1.000e-04, eta: 7:35:30, time: 1.619, data_time: 1.019, memory: 2392, top1_acc: 0.2833, top5_acc: 0.8167, loss_cls: 2.2318, loss: 2.2318, grad_norm: 15.4978
+2022-04-13 01:16:52,334 - mmaction - INFO - Epoch [98][60/768]	lr: 1.000e-04, eta: 7:34:52, time: 1.617, data_time: 1.018, memory: 2392, top1_acc: 0.3333, top5_acc: 0.8000, loss_cls: 2.2650, loss: 2.2650, grad_norm: 14.8621
+2022-04-13 01:17:24,578 - mmaction - INFO - Epoch [98][80/768]	lr: 1.000e-04, eta: 7:34:13, time: 1.613, data_time: 1.019, memory: 2392, top1_acc: 0.2833, top5_acc: 0.8000, loss_cls: 2.3070, loss: 2.3070, grad_norm: 15.5285
+2022-04-13 01:17:56,132 - mmaction - INFO - Epoch [98][100/768]	lr: 1.000e-04, eta: 7:33:27, time: 1.577, data_time: 0.978, memory: 2392, top1_acc: 0.3333, top5_acc: 0.8167, loss_cls: 2.2277, loss: 2.2277, grad_norm: 15.2437
+2022-04-13 01:18:28,860 - mmaction - INFO - Epoch [98][120/768]	lr: 1.000e-04, eta: 7:32:54, time: 1.637, data_time: 1.041, memory: 2392, top1_acc: 0.3667, top5_acc: 0.7833, loss_cls: 2.2399, loss: 2.2399, grad_norm: 14.7379
+2022-04-13 01:19:00,835 - mmaction - INFO - Epoch [98][140/768]	lr: 1.000e-04, eta: 7:32:12, time: 1.598, data_time: 0.998, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8333, loss_cls: 2.2007, loss: 2.2007, grad_norm: 15.2829
+2022-04-13 01:19:32,545 - mmaction - INFO - Epoch [98][160/768]	lr: 1.000e-04, eta: 7:31:29, time: 1.586, data_time: 0.989, memory: 2392, top1_acc: 0.2500, top5_acc: 0.8167, loss_cls: 2.1590, loss: 2.1590, grad_norm: 15.2003
+2022-04-13 01:20:03,987 - mmaction - INFO - Epoch [98][180/768]	lr: 1.000e-04, eta: 7:30:43, time: 1.573, data_time: 0.976, memory: 2392, top1_acc: 0.3667, top5_acc: 0.7833, loss_cls: 2.3138, loss: 2.3138, grad_norm: 15.5200
+2022-04-13 01:20:37,864 - mmaction - INFO - Epoch [98][200/768]	lr: 1.000e-04, eta: 7:30:21, time: 1.693, data_time: 1.094, memory: 2392, top1_acc: 0.3333, top5_acc: 0.7667, loss_cls: 2.2520, loss: 2.2520, grad_norm: 15.1624
+2022-04-13 01:21:10,302 - mmaction - INFO - Epoch [98][220/768]	lr: 1.000e-04, eta: 7:29:45, time: 1.622, data_time: 1.025, memory: 2392, top1_acc: 0.3500, top5_acc: 0.8667, loss_cls: 2.1813, loss: 2.1813, grad_norm: 15.9379
+2022-04-13 01:21:42,718 - mmaction - INFO - Epoch [98][240/768]	lr: 1.000e-04, eta: 7:29:09, time: 1.622, data_time: 1.024, memory: 2392, top1_acc: 0.4167, top5_acc: 0.7667, loss_cls: 2.1979, loss: 2.1979, grad_norm: 15.9390
+2022-04-13 01:22:15,526 - mmaction - INFO - Epoch [98][260/768]	lr: 1.000e-04, eta: 7:28:36, time: 1.640, data_time: 1.043, memory: 2392, top1_acc: 0.3833, top5_acc: 0.7833, loss_cls: 2.1610, loss: 2.1610, grad_norm: 15.1583
+2022-04-13 01:22:48,330 - mmaction - INFO - Epoch [98][280/768]	lr: 1.000e-04, eta: 7:28:04, time: 1.639, data_time: 1.043, memory: 2392, top1_acc: 0.3500, top5_acc: 0.8167, loss_cls: 2.0869, loss: 2.0869, grad_norm: 14.7504
+2022-04-13 01:23:21,403 - mmaction - INFO - Epoch [98][300/768]	lr: 1.000e-04, eta: 7:27:34, time: 1.654, data_time: 1.056, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8833, loss_cls: 1.9997, loss: 1.9997, grad_norm: 15.1458
+2022-04-13 01:23:54,368 - mmaction - INFO - Epoch [98][320/768]	lr: 1.000e-04, eta: 7:27:02, time: 1.647, data_time: 1.048, memory: 2392, top1_acc: 0.5000, top5_acc: 0.8333, loss_cls: 1.9841, loss: 1.9841, grad_norm: 14.7619
+2022-04-13 01:24:26,375 - mmaction - INFO - Epoch [98][340/768]	lr: 1.000e-04, eta: 7:26:23, time: 1.600, data_time: 1.002, memory: 2392, top1_acc: 0.3000, top5_acc: 0.8333, loss_cls: 2.0442, loss: 2.0442, grad_norm: 15.8225
+2022-04-13 01:24:58,148 - mmaction - INFO - Epoch [98][360/768]	lr: 1.000e-04, eta: 7:25:42, time: 1.589, data_time: 0.993, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8000, loss_cls: 2.0822, loss: 2.0822, grad_norm: 15.2537
+2022-04-13 01:25:30,313 - mmaction - INFO - Epoch [98][380/768]	lr: 1.000e-04, eta: 7:25:04, time: 1.608, data_time: 1.012, memory: 2392, top1_acc: 0.3167, top5_acc: 0.8167, loss_cls: 2.0829, loss: 2.0829, grad_norm: 15.4401
+2022-04-13 01:26:03,112 - mmaction - INFO - Epoch [98][400/768]	lr: 1.000e-04, eta: 7:24:31, time: 1.639, data_time: 1.042, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8833, loss_cls: 1.9935, loss: 1.9935, grad_norm: 15.1143
+2022-04-13 01:26:36,406 - mmaction - INFO - Epoch [98][420/768]	lr: 1.000e-04, eta: 7:24:03, time: 1.665, data_time: 1.068, memory: 2392, top1_acc: 0.3000, top5_acc: 0.8833, loss_cls: 2.1477, loss: 2.1477, grad_norm: 14.8910
+2022-04-13 01:27:09,074 - mmaction - INFO - Epoch [98][440/768]	lr: 1.000e-04, eta: 7:23:29, time: 1.633, data_time: 1.036, memory: 2392, top1_acc: 0.3667, top5_acc: 0.7833, loss_cls: 2.1248, loss: 2.1248, grad_norm: 15.4670
+2022-04-13 01:27:42,354 - mmaction - INFO - Epoch [98][460/768]	lr: 1.000e-04, eta: 7:23:01, time: 1.665, data_time: 1.069, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8333, loss_cls: 2.0975, loss: 2.0975, grad_norm: 15.0451
+2022-04-13 01:28:14,035 - mmaction - INFO - Epoch [98][480/768]	lr: 1.000e-04, eta: 7:22:19, time: 1.584, data_time: 0.990, memory: 2392, top1_acc: 0.4167, top5_acc: 0.8667, loss_cls: 1.9620, loss: 1.9620, grad_norm: 14.8428
+2022-04-13 01:28:47,379 - mmaction - INFO - Epoch [98][500/768]	lr: 1.000e-04, eta: 7:21:51, time: 1.666, data_time: 1.069, memory: 2392, top1_acc: 0.4333, top5_acc: 0.8500, loss_cls: 1.8905, loss: 1.8905, grad_norm: 14.8350
+2022-04-13 01:29:20,548 - mmaction - INFO - Epoch [98][520/768]	lr: 1.000e-04, eta: 7:21:22, time: 1.658, data_time: 1.064, memory: 2392, top1_acc: 0.4833, top5_acc: 0.8167, loss_cls: 1.9286, loss: 1.9286, grad_norm: 14.4095
+2022-04-13 01:29:53,372 - mmaction - INFO - Epoch [98][540/768]	lr: 1.000e-04, eta: 7:20:49, time: 1.641, data_time: 1.044, memory: 2392, top1_acc: 0.6500, top5_acc: 0.9333, loss_cls: 1.7081, loss: 1.7081, grad_norm: 14.2312
+2022-04-13 01:30:26,246 - mmaction - INFO - Epoch [98][560/768]	lr: 1.000e-04, eta: 7:20:17, time: 1.644, data_time: 1.049, memory: 2392, top1_acc: 0.4000, top5_acc: 0.8500, loss_cls: 1.8315, loss: 1.8315, grad_norm: 14.4064
+2022-04-13 01:30:56,456 - mmaction - INFO - Epoch [98][580/768]	lr: 1.000e-04, eta: 7:19:25, time: 1.511, data_time: 0.917, memory: 2392, top1_acc: 0.4000, top5_acc: 0.9500, loss_cls: 1.9044, loss: 1.9044, grad_norm: 15.0805
+2022-04-13 01:31:29,074 - mmaction - INFO - Epoch [98][600/768]	lr: 1.000e-04, eta: 7:18:52, time: 1.631, data_time: 1.032, memory: 2392, top1_acc: 0.4833, top5_acc: 0.8167, loss_cls: 1.8893, loss: 1.8893, grad_norm: 15.1901
+2022-04-13 01:32:00,974 - mmaction - INFO - Epoch [98][620/768]	lr: 1.000e-04, eta: 7:18:12, time: 1.595, data_time: 0.997, memory: 2392, top1_acc: 0.4333, top5_acc: 0.9333, loss_cls: 1.8622, loss: 1.8622, grad_norm: 14.5593
+2022-04-13 01:32:33,487 - mmaction - INFO - Epoch [98][640/768]	lr: 1.000e-04, eta: 7:17:38, time: 1.625, data_time: 1.030, memory: 2392, top1_acc: 0.5000, top5_acc: 0.9000, loss_cls: 1.7633, loss: 1.7633, grad_norm: 14.5548
+2022-04-13 01:33:06,277 - mmaction - INFO - Epoch [98][660/768]	lr: 1.000e-04, eta: 7:17:06, time: 1.640, data_time: 1.046, memory: 2392, top1_acc: 0.6000, top5_acc: 1.0000, loss_cls: 1.5927, loss: 1.5927, grad_norm: 14.1875
+2022-04-13 01:33:39,021 - mmaction - INFO - Epoch [98][680/768]	lr: 1.000e-04, eta: 7:16:33, time: 1.636, data_time: 1.040, memory: 2392, top1_acc: 0.4667, top5_acc: 0.9333, loss_cls: 1.6879, loss: 1.6879, grad_norm: 14.1947
+2022-04-13 01:34:12,144 - mmaction - INFO - Epoch [98][700/768]	lr: 1.000e-04, eta: 7:16:03, time: 1.656, data_time: 1.062, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9667, loss_cls: 1.5492, loss: 1.5492, grad_norm: 13.6997
+2022-04-13 01:34:44,200 - mmaction - INFO - Epoch [98][720/768]	lr: 1.000e-04, eta: 7:15:26, time: 1.604, data_time: 1.009, memory: 2392, top1_acc: 0.5000, top5_acc: 0.8667, loss_cls: 1.7305, loss: 1.7305, grad_norm: 14.3389
+2022-04-13 01:35:17,762 - mmaction - INFO - Epoch [98][740/768]	lr: 1.000e-04, eta: 7:14:59, time: 1.678, data_time: 1.080, memory: 2392, top1_acc: 0.5167, top5_acc: 0.9167, loss_cls: 1.7477, loss: 1.7477, grad_norm: 14.2689
+2022-04-13 01:35:51,059 - mmaction - INFO - Epoch [98][760/768]	lr: 1.000e-04, eta: 7:14:30, time: 1.665, data_time: 1.068, memory: 2392, top1_acc: 0.5500, top5_acc: 0.9333, loss_cls: 1.6532, loss: 1.6532, grad_norm: 14.3808
+2022-04-13 01:36:04,551 - mmaction - INFO - Saving checkpoint at 98 epochs
+2022-04-13 01:41:26,907 - mmaction - INFO - Epoch(val) [98][192]	top1_acc: 0.6181, top5_acc: 0.9670, loss_cls: 1.0977, loss: 1.0977
+2022-04-13 01:42:07,815 - mmaction - INFO - Epoch [99][20/768]	lr: 1.000e-04, eta: 7:13:10, time: 2.043, data_time: 1.441, memory: 2392, top1_acc: 0.5833, top5_acc: 0.9333, loss_cls: 1.5450, loss: 1.5450, grad_norm: 13.7342
+2022-04-13 01:42:39,697 - mmaction - INFO - Epoch [99][40/768]	lr: 1.000e-04, eta: 7:12:32, time: 1.594, data_time: 0.997, memory: 2392, top1_acc: 0.5333, top5_acc: 0.9333, loss_cls: 1.6033, loss: 1.6033, grad_norm: 14.2975
+2022-04-13 01:43:11,925 - mmaction - INFO - Epoch [99][60/768]	lr: 1.000e-04, eta: 7:11:56, time: 1.611, data_time: 1.014, memory: 2392, top1_acc: 0.5167, top5_acc: 0.9167, loss_cls: 1.6985, loss: 1.6985, grad_norm: 14.4251
+2022-04-13 01:43:43,698 - mmaction - INFO - Epoch [99][80/768]	lr: 1.000e-04, eta: 7:11:17, time: 1.589, data_time: 0.993, memory: 2392, top1_acc: 0.5667, top5_acc: 0.8833, loss_cls: 1.6077, loss: 1.6077, grad_norm: 13.9231
+2022-04-13 01:44:17,338 - mmaction - INFO - Epoch [99][100/768]	lr: 1.000e-04, eta: 7:10:51, time: 1.681, data_time: 1.085, memory: 2392, top1_acc: 0.5167, top5_acc: 0.8500, loss_cls: 1.8808, loss: 1.8808, grad_norm: 14.4100
+2022-04-13 01:44:49,378 - mmaction - INFO - Epoch [99][120/768]	lr: 1.000e-04, eta: 7:10:14, time: 1.602, data_time: 1.006, memory: 2392, top1_acc: 0.4667, top5_acc: 0.9167, loss_cls: 1.6608, loss: 1.6608, grad_norm: 14.8310
+2022-04-13 01:45:23,755 - mmaction - INFO - Epoch [99][140/768]	lr: 1.000e-04, eta: 7:09:52, time: 1.718, data_time: 1.120, memory: 2392, top1_acc: 0.5833, top5_acc: 0.9667, loss_cls: 1.4676, loss: 1.4676, grad_norm: 13.1728
+2022-04-13 01:45:56,198 - mmaction - INFO - Epoch [99][160/768]	lr: 1.000e-04, eta: 7:09:18, time: 1.623, data_time: 1.026, memory: 2392, top1_acc: 0.4833, top5_acc: 0.9167, loss_cls: 1.6917, loss: 1.6917, grad_norm: 15.6898
+2022-04-13 01:46:28,667 - mmaction - INFO - Epoch [99][180/768]	lr: 1.000e-04, eta: 7:08:44, time: 1.623, data_time: 1.025, memory: 2392, top1_acc: 0.6500, top5_acc: 0.8500, loss_cls: 1.6120, loss: 1.6120, grad_norm: 14.0908
+2022-04-13 01:47:02,040 - mmaction - INFO - Epoch [99][200/768]	lr: 1.000e-04, eta: 7:08:15, time: 1.669, data_time: 1.070, memory: 2392, top1_acc: 0.4667, top5_acc: 0.9167, loss_cls: 1.6643, loss: 1.6643, grad_norm: 14.4310
+2022-04-13 01:47:33,766 - mmaction - INFO - Epoch [99][220/768]	lr: 1.000e-04, eta: 7:07:36, time: 1.587, data_time: 0.988, memory: 2392, top1_acc: 0.5000, top5_acc: 0.9000, loss_cls: 1.6872, loss: 1.6872, grad_norm: 15.1675
+2022-04-13 01:48:06,343 - mmaction - INFO - Epoch [99][240/768]	lr: 1.000e-04, eta: 7:07:03, time: 1.629, data_time: 1.028, memory: 2392, top1_acc: 0.6000, top5_acc: 0.9500, loss_cls: 1.5650, loss: 1.5650, grad_norm: 14.5699
+2022-04-13 01:48:40,433 - mmaction - INFO - Epoch [99][260/768]	lr: 1.000e-04, eta: 7:06:39, time: 1.704, data_time: 1.109, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9833, loss_cls: 1.3550, loss: 1.3550, grad_norm: 14.0379
+2022-04-13 01:49:14,829 - mmaction - INFO - Epoch [99][280/768]	lr: 1.000e-04, eta: 7:06:16, time: 1.720, data_time: 1.124, memory: 2392, top1_acc: 0.5000, top5_acc: 0.9167, loss_cls: 1.5446, loss: 1.5446, grad_norm: 13.6733
+2022-04-13 01:49:46,382 - mmaction - INFO - Epoch [99][300/768]	lr: 1.000e-04, eta: 7:05:37, time: 1.577, data_time: 0.981, memory: 2392, top1_acc: 0.6333, top5_acc: 0.8333, loss_cls: 1.7306, loss: 1.7306, grad_norm: 14.6074
+2022-04-13 01:50:17,072 - mmaction - INFO - Epoch [99][320/768]	lr: 1.000e-04, eta: 7:04:52, time: 1.534, data_time: 0.940, memory: 2392, top1_acc: 0.5167, top5_acc: 0.9167, loss_cls: 1.6364, loss: 1.6364, grad_norm: 14.2045
+2022-04-13 01:50:50,282 - mmaction - INFO - Epoch [99][340/768]	lr: 1.000e-04, eta: 7:04:22, time: 1.661, data_time: 1.066, memory: 2392, top1_acc: 0.5667, top5_acc: 0.9667, loss_cls: 1.5587, loss: 1.5587, grad_norm: 14.1201
+2022-04-13 01:51:22,905 - mmaction - INFO - Epoch [99][360/768]	lr: 1.000e-04, eta: 7:03:49, time: 1.630, data_time: 1.033, memory: 2392, top1_acc: 0.6167, top5_acc: 0.9667, loss_cls: 1.2990, loss: 1.2990, grad_norm: 12.6429
+2022-04-13 01:51:56,122 - mmaction - INFO - Epoch [99][380/768]	lr: 1.000e-04, eta: 7:03:20, time: 1.661, data_time: 1.065, memory: 2392, top1_acc: 0.6667, top5_acc: 0.9833, loss_cls: 1.2882, loss: 1.2882, grad_norm: 13.3478
+2022-04-13 01:52:26,980 - mmaction - INFO - Epoch [99][400/768]	lr: 1.000e-04, eta: 7:02:36, time: 1.543, data_time: 0.948, memory: 2392, top1_acc: 0.6000, top5_acc: 0.9167, loss_cls: 1.5124, loss: 1.5124, grad_norm: 14.1166
+2022-04-13 01:52:58,583 - mmaction - INFO - Epoch [99][420/768]	lr: 1.000e-04, eta: 7:01:57, time: 1.579, data_time: 0.984, memory: 2392, top1_acc: 0.5500, top5_acc: 0.9667, loss_cls: 1.4435, loss: 1.4435, grad_norm: 14.2929
+2022-04-13 01:53:31,142 - mmaction - INFO - Epoch [99][440/768]	lr: 1.000e-04, eta: 7:01:24, time: 1.628, data_time: 1.030, memory: 2392, top1_acc: 0.5000, top5_acc: 0.8833, loss_cls: 1.6019, loss: 1.6019, grad_norm: 14.4276
+2022-04-13 01:54:03,983 - mmaction - INFO - Epoch [99][460/768]	lr: 1.000e-04, eta: 7:00:52, time: 1.642, data_time: 1.043, memory: 2392, top1_acc: 0.6167, top5_acc: 0.9500, loss_cls: 1.4744, loss: 1.4744, grad_norm: 13.4292
+2022-04-13 01:54:35,502 - mmaction - INFO - Epoch [99][480/768]	lr: 1.000e-04, eta: 7:00:13, time: 1.577, data_time: 0.979, memory: 2392, top1_acc: 0.5500, top5_acc: 0.8167, loss_cls: 1.7202, loss: 1.7202, grad_norm: 14.6550
+2022-04-13 01:55:08,625 - mmaction - INFO - Epoch [99][500/768]	lr: 1.000e-04, eta: 6:59:43, time: 1.655, data_time: 1.058, memory: 2392, top1_acc: 0.5000, top5_acc: 0.9500, loss_cls: 1.4399, loss: 1.4399, grad_norm: 13.7789
+2022-04-13 01:55:41,622 - mmaction - INFO - Epoch [99][520/768]	lr: 1.000e-04, eta: 6:59:12, time: 1.651, data_time: 1.054, memory: 2392, top1_acc: 0.5500, top5_acc: 0.9333, loss_cls: 1.3377, loss: 1.3377, grad_norm: 13.9355
+2022-04-13 01:56:14,197 - mmaction - INFO - Epoch [99][540/768]	lr: 1.000e-04, eta: 6:58:39, time: 1.629, data_time: 1.032, memory: 2392, top1_acc: 0.5000, top5_acc: 0.9167, loss_cls: 1.4542, loss: 1.4542, grad_norm: 13.5408
+2022-04-13 01:56:46,388 - mmaction - INFO - Epoch [99][560/768]	lr: 1.000e-04, eta: 6:58:04, time: 1.609, data_time: 1.009, memory: 2392, top1_acc: 0.6000, top5_acc: 0.9667, loss_cls: 1.2050, loss: 1.2050, grad_norm: 13.0249
+2022-04-13 01:57:19,183 - mmaction - INFO - Epoch [99][580/768]	lr: 1.000e-04, eta: 6:57:32, time: 1.640, data_time: 1.045, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9667, loss_cls: 1.2156, loss: 1.2156, grad_norm: 12.6293
+2022-04-13 01:57:50,863 - mmaction - INFO - Epoch [99][600/768]	lr: 1.000e-04, eta: 6:56:54, time: 1.584, data_time: 0.985, memory: 2392, top1_acc: 0.5167, top5_acc: 0.9333, loss_cls: 1.4369, loss: 1.4369, grad_norm: 13.7396
+2022-04-13 01:58:23,041 - mmaction - INFO - Epoch [99][620/768]	lr: 1.000e-04, eta: 6:56:19, time: 1.609, data_time: 1.013, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9167, loss_cls: 1.3582, loss: 1.3582, grad_norm: 12.9238
+2022-04-13 01:58:53,850 - mmaction - INFO - Epoch [99][640/768]	lr: 1.000e-04, eta: 6:55:36, time: 1.541, data_time: 0.943, memory: 2392, top1_acc: 0.6500, top5_acc: 0.9333, loss_cls: 1.3364, loss: 1.3364, grad_norm: 12.6964
+2022-04-13 01:59:24,356 - mmaction - INFO - Epoch [99][660/768]	lr: 1.000e-04, eta: 6:54:53, time: 1.525, data_time: 0.928, memory: 2392, top1_acc: 0.6167, top5_acc: 0.9167, loss_cls: 1.4090, loss: 1.4090, grad_norm: 13.4335
+2022-04-13 01:59:56,351 - mmaction - INFO - Epoch [99][680/768]	lr: 1.000e-04, eta: 6:54:17, time: 1.600, data_time: 1.005, memory: 2392, top1_acc: 0.4833, top5_acc: 0.8667, loss_cls: 1.6505, loss: 1.6505, grad_norm: 14.1137
+2022-04-13 02:00:30,534 - mmaction - INFO - Epoch [99][700/768]	lr: 1.000e-04, eta: 6:53:52, time: 1.709, data_time: 1.109, memory: 2392, top1_acc: 0.6167, top5_acc: 0.9500, loss_cls: 1.2727, loss: 1.2727, grad_norm: 12.9417
+2022-04-13 02:01:04,206 - mmaction - INFO - Epoch [99][720/768]	lr: 1.000e-04, eta: 6:53:25, time: 1.684, data_time: 1.086, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9333, loss_cls: 1.3282, loss: 1.3282, grad_norm: 13.1943
+2022-04-13 02:01:36,985 - mmaction - INFO - Epoch [99][740/768]	lr: 1.000e-04, eta: 6:52:53, time: 1.638, data_time: 1.040, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9500, loss_cls: 1.3837, loss: 1.3837, grad_norm: 14.5240
+2022-04-13 02:02:08,791 - mmaction - INFO - Epoch [99][760/768]	lr: 1.000e-04, eta: 6:52:16, time: 1.590, data_time: 0.990, memory: 2392, top1_acc: 0.6000, top5_acc: 0.8833, loss_cls: 1.4267, loss: 1.4267, grad_norm: 13.7761
+2022-04-13 02:02:21,966 - mmaction - INFO - Saving checkpoint at 99 epochs
+2022-04-13 02:07:45,556 - mmaction - INFO - Epoch(val) [99][192]	top1_acc: 0.7188, top5_acc: 0.9861, loss_cls: 0.8077, loss: 0.8077
+2022-04-13 02:08:27,716 - mmaction - INFO - Epoch [100][20/768]	lr: 1.000e-04, eta: 6:51:12, time: 2.106, data_time: 1.504, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9833, loss_cls: 1.1332, loss: 1.1332, grad_norm: 12.3909
+2022-04-13 02:08:59,591 - mmaction - INFO - Epoch [100][40/768]	lr: 1.000e-04, eta: 6:50:36, time: 1.594, data_time: 0.999, memory: 2392, top1_acc: 0.5167, top5_acc: 0.9833, loss_cls: 1.4457, loss: 1.4457, grad_norm: 13.8412
+2022-04-13 02:09:33,002 - mmaction - INFO - Epoch [100][60/768]	lr: 1.000e-04, eta: 6:50:07, time: 1.670, data_time: 1.076, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9667, loss_cls: 1.1855, loss: 1.1855, grad_norm: 13.1273
+2022-04-13 02:10:04,571 - mmaction - INFO - Epoch [100][80/768]	lr: 1.000e-04, eta: 6:49:30, time: 1.579, data_time: 0.983, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9667, loss_cls: 1.3059, loss: 1.3059, grad_norm: 13.4971
+2022-04-13 02:10:37,480 - mmaction - INFO - Epoch [100][100/768]	lr: 1.000e-04, eta: 6:48:59, time: 1.645, data_time: 1.045, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9667, loss_cls: 1.1550, loss: 1.1550, grad_norm: 12.5181
+2022-04-13 02:11:10,890 - mmaction - INFO - Epoch [100][120/768]	lr: 1.000e-04, eta: 6:48:30, time: 1.670, data_time: 1.074, memory: 2392, top1_acc: 0.5667, top5_acc: 0.9333, loss_cls: 1.2287, loss: 1.2287, grad_norm: 12.7978
+2022-04-13 02:11:43,054 - mmaction - INFO - Epoch [100][140/768]	lr: 1.000e-04, eta: 6:47:55, time: 1.608, data_time: 1.011, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9000, loss_cls: 1.1252, loss: 1.1252, grad_norm: 11.3918
+2022-04-13 02:12:14,590 - mmaction - INFO - Epoch [100][160/768]	lr: 1.000e-04, eta: 6:47:17, time: 1.578, data_time: 0.980, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9333, loss_cls: 1.0255, loss: 1.0255, grad_norm: 11.5435
+2022-04-13 02:12:46,911 - mmaction - INFO - Epoch [100][180/768]	lr: 1.000e-04, eta: 6:46:43, time: 1.615, data_time: 1.018, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9167, loss_cls: 1.2644, loss: 1.2644, grad_norm: 13.2088
+2022-04-13 02:13:20,111 - mmaction - INFO - Epoch [100][200/768]	lr: 1.000e-04, eta: 6:46:14, time: 1.660, data_time: 1.062, memory: 2392, top1_acc: 0.7333, top5_acc: 1.0000, loss_cls: 1.1256, loss: 1.1256, grad_norm: 11.8416
+2022-04-13 02:13:52,526 - mmaction - INFO - Epoch [100][220/768]	lr: 1.000e-04, eta: 6:45:40, time: 1.621, data_time: 1.025, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9333, loss_cls: 1.2310, loss: 1.2310, grad_norm: 12.9971
+2022-04-13 02:14:23,904 - mmaction - INFO - Epoch [100][240/768]	lr: 1.000e-04, eta: 6:45:02, time: 1.570, data_time: 0.974, memory: 2392, top1_acc: 0.6667, top5_acc: 0.9833, loss_cls: 1.2090, loss: 1.2090, grad_norm: 12.8109
+2022-04-13 02:14:55,722 - mmaction - INFO - Epoch [100][260/768]	lr: 1.000e-04, eta: 6:44:26, time: 1.590, data_time: 0.993, memory: 2392, top1_acc: 0.6667, top5_acc: 0.9833, loss_cls: 1.1155, loss: 1.1155, grad_norm: 12.3137
+2022-04-13 02:15:27,967 - mmaction - INFO - Epoch [100][280/768]	lr: 1.000e-04, eta: 6:43:52, time: 1.613, data_time: 1.019, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9833, loss_cls: 1.0227, loss: 1.0227, grad_norm: 12.4689
+2022-04-13 02:16:00,401 - mmaction - INFO - Epoch [100][300/768]	lr: 1.000e-04, eta: 6:43:18, time: 1.621, data_time: 1.025, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9333, loss_cls: 1.2048, loss: 1.2048, grad_norm: 12.7768
+2022-04-13 02:16:33,500 - mmaction - INFO - Epoch [100][320/768]	lr: 1.000e-04, eta: 6:42:48, time: 1.655, data_time: 1.059, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9667, loss_cls: 1.0535, loss: 1.0535, grad_norm: 11.6888
+2022-04-13 02:17:07,027 - mmaction - INFO - Epoch [100][340/768]	lr: 1.000e-04, eta: 6:42:19, time: 1.677, data_time: 1.080, memory: 2392, top1_acc: 0.7167, top5_acc: 1.0000, loss_cls: 1.0161, loss: 1.0161, grad_norm: 12.0696
+2022-04-13 02:17:39,661 - mmaction - INFO - Epoch [100][360/768]	lr: 1.000e-04, eta: 6:41:47, time: 1.631, data_time: 1.038, memory: 2392, top1_acc: 0.5833, top5_acc: 0.9500, loss_cls: 1.3178, loss: 1.3178, grad_norm: 14.7069
+2022-04-13 02:18:11,449 - mmaction - INFO - Epoch [100][380/768]	lr: 1.000e-04, eta: 6:41:11, time: 1.589, data_time: 0.995, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9833, loss_cls: 1.0210, loss: 1.0210, grad_norm: 11.5036
+2022-04-13 02:18:44,730 - mmaction - INFO - Epoch [100][400/768]	lr: 1.000e-04, eta: 6:40:41, time: 1.665, data_time: 1.069, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9667, loss_cls: 0.9837, loss: 0.9837, grad_norm: 11.4495
+2022-04-13 02:19:17,662 - mmaction - INFO - Epoch [100][420/768]	lr: 1.000e-04, eta: 6:40:10, time: 1.646, data_time: 1.050, memory: 2392, top1_acc: 0.6000, top5_acc: 0.9167, loss_cls: 1.2123, loss: 1.2123, grad_norm: 11.9700
+2022-04-13 02:19:50,892 - mmaction - INFO - Epoch [100][440/768]	lr: 1.000e-04, eta: 6:39:40, time: 1.661, data_time: 1.062, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9667, loss_cls: 1.0730, loss: 1.0730, grad_norm: 11.7457
+2022-04-13 02:20:21,910 - mmaction - INFO - Epoch [100][460/768]	lr: 1.000e-04, eta: 6:39:01, time: 1.551, data_time: 0.955, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9500, loss_cls: 1.1081, loss: 1.1081, grad_norm: 12.6194
+2022-04-13 02:20:54,888 - mmaction - INFO - Epoch [100][480/768]	lr: 1.000e-04, eta: 6:38:30, time: 1.649, data_time: 1.051, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9500, loss_cls: 0.9881, loss: 0.9881, grad_norm: 11.9599
+2022-04-13 02:21:28,761 - mmaction - INFO - Epoch [100][500/768]	lr: 1.000e-04, eta: 6:38:02, time: 1.693, data_time: 1.094, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9833, loss_cls: 0.8805, loss: 0.8805, grad_norm: 11.0959
+2022-04-13 02:22:00,438 - mmaction - INFO - Epoch [100][520/768]	lr: 1.000e-04, eta: 6:37:26, time: 1.584, data_time: 0.993, memory: 2392, top1_acc: 0.6333, top5_acc: 0.9500, loss_cls: 1.2730, loss: 1.2730, grad_norm: 14.1834
+2022-04-13 02:22:32,236 - mmaction - INFO - Epoch [100][540/768]	lr: 1.000e-04, eta: 6:36:50, time: 1.590, data_time: 0.992, memory: 2392, top1_acc: 0.6833, top5_acc: 1.0000, loss_cls: 1.0350, loss: 1.0350, grad_norm: 12.1841
+2022-04-13 02:23:06,923 - mmaction - INFO - Epoch [100][560/768]	lr: 1.000e-04, eta: 6:36:26, time: 1.734, data_time: 1.135, memory: 2392, top1_acc: 0.7000, top5_acc: 0.9667, loss_cls: 1.0782, loss: 1.0782, grad_norm: 12.5807
+2022-04-13 02:23:39,181 - mmaction - INFO - Epoch [100][580/768]	lr: 1.000e-04, eta: 6:35:52, time: 1.613, data_time: 1.015, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9500, loss_cls: 1.0082, loss: 1.0082, grad_norm: 10.8273
+2022-04-13 02:24:10,372 - mmaction - INFO - Epoch [100][600/768]	lr: 1.000e-04, eta: 6:35:13, time: 1.560, data_time: 0.964, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9333, loss_cls: 1.0744, loss: 1.0744, grad_norm: 11.2804
+2022-04-13 02:24:41,658 - mmaction - INFO - Epoch [100][620/768]	lr: 1.000e-04, eta: 6:34:36, time: 1.564, data_time: 0.968, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9667, loss_cls: 0.9471, loss: 0.9471, grad_norm: 11.2073
+2022-04-13 02:25:14,998 - mmaction - INFO - Epoch [100][640/768]	lr: 1.000e-04, eta: 6:34:06, time: 1.667, data_time: 1.070, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9667, loss_cls: 0.9720, loss: 0.9720, grad_norm: 11.6887
+2022-04-13 02:25:47,887 - mmaction - INFO - Epoch [100][660/768]	lr: 1.000e-04, eta: 6:33:35, time: 1.645, data_time: 1.051, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9667, loss_cls: 0.9694, loss: 0.9694, grad_norm: 11.7391
+2022-04-13 02:26:20,444 - mmaction - INFO - Epoch [100][680/768]	lr: 1.000e-04, eta: 6:33:02, time: 1.627, data_time: 1.032, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9667, loss_cls: 1.0190, loss: 1.0190, grad_norm: 12.2191
+2022-04-13 02:26:52,022 - mmaction - INFO - Epoch [100][700/768]	lr: 1.000e-04, eta: 6:32:25, time: 1.579, data_time: 0.982, memory: 2392, top1_acc: 0.7000, top5_acc: 0.9833, loss_cls: 1.0752, loss: 1.0752, grad_norm: 13.1169
+2022-04-13 02:27:25,493 - mmaction - INFO - Epoch [100][720/768]	lr: 1.000e-04, eta: 6:31:56, time: 1.673, data_time: 1.080, memory: 2392, top1_acc: 0.8000, top5_acc: 0.9333, loss_cls: 0.9258, loss: 0.9258, grad_norm: 10.7089
+2022-04-13 02:27:59,082 - mmaction - INFO - Epoch [100][740/768]	lr: 1.000e-04, eta: 6:31:27, time: 1.680, data_time: 1.084, memory: 2392, top1_acc: 0.8000, top5_acc: 1.0000, loss_cls: 0.8500, loss: 0.8500, grad_norm: 10.8547
+2022-04-13 02:28:30,912 - mmaction - INFO - Epoch [100][760/768]	lr: 1.000e-04, eta: 6:30:52, time: 1.591, data_time: 0.994, memory: 2392, top1_acc: 0.6667, top5_acc: 1.0000, loss_cls: 1.0387, loss: 1.0387, grad_norm: 12.2506
+2022-04-13 02:28:43,904 - mmaction - INFO - Saving checkpoint at 100 epochs
+2022-04-13 02:34:10,217 - mmaction - INFO - Epoch(val) [100][192]	top1_acc: 0.8750, top5_acc: 0.9983, loss_cls: 0.4052, loss: 0.4052
+2022-04-13 02:34:50,414 - mmaction - INFO - Epoch [101][20/768]	lr: 1.000e-04, eta: 6:29:46, time: 2.009, data_time: 1.409, memory: 2392, top1_acc: 0.7667, top5_acc: 1.0000, loss_cls: 0.7926, loss: 0.7926, grad_norm: 11.0594
+2022-04-13 02:35:22,805 - mmaction - INFO - Epoch [101][40/768]	lr: 1.000e-04, eta: 6:29:12, time: 1.619, data_time: 1.023, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9667, loss_cls: 1.0144, loss: 1.0144, grad_norm: 12.3874
+2022-04-13 02:35:55,860 - mmaction - INFO - Epoch [101][60/768]	lr: 1.000e-04, eta: 6:28:42, time: 1.653, data_time: 1.056, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9667, loss_cls: 0.9636, loss: 0.9636, grad_norm: 11.7042
+2022-04-13 02:36:27,505 - mmaction - INFO - Epoch [101][80/768]	lr: 1.000e-04, eta: 6:28:06, time: 1.582, data_time: 0.985, memory: 2392, top1_acc: 0.6667, top5_acc: 0.9500, loss_cls: 1.1044, loss: 1.1044, grad_norm: 14.2549
+2022-04-13 02:36:59,142 - mmaction - INFO - Epoch [101][100/768]	lr: 1.000e-04, eta: 6:27:30, time: 1.582, data_time: 0.987, memory: 2392, top1_acc: 0.6833, top5_acc: 0.9667, loss_cls: 1.0406, loss: 1.0406, grad_norm: 12.7143
+2022-04-13 02:37:31,785 - mmaction - INFO - Epoch [101][120/768]	lr: 1.000e-04, eta: 6:26:57, time: 1.632, data_time: 1.038, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9500, loss_cls: 0.9613, loss: 0.9613, grad_norm: 11.6509
+2022-04-13 02:38:04,286 - mmaction - INFO - Epoch [101][140/768]	lr: 1.000e-04, eta: 6:26:25, time: 1.625, data_time: 1.030, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9833, loss_cls: 0.9492, loss: 0.9492, grad_norm: 11.2489
+2022-04-13 02:38:36,027 - mmaction - INFO - Epoch [101][160/768]	lr: 1.000e-04, eta: 6:25:49, time: 1.588, data_time: 0.992, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9667, loss_cls: 0.7921, loss: 0.7921, grad_norm: 10.4768
+2022-04-13 02:39:09,830 - mmaction - INFO - Epoch [101][180/768]	lr: 1.000e-04, eta: 6:25:21, time: 1.690, data_time: 1.096, memory: 2392, top1_acc: 0.7333, top5_acc: 0.9833, loss_cls: 0.8782, loss: 0.8782, grad_norm: 10.8608
+2022-04-13 02:39:42,238 - mmaction - INFO - Epoch [101][200/768]	lr: 1.000e-04, eta: 6:24:48, time: 1.620, data_time: 1.027, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9500, loss_cls: 0.8491, loss: 0.8491, grad_norm: 10.6748
+2022-04-13 02:40:14,488 - mmaction - INFO - Epoch [101][220/768]	lr: 1.000e-04, eta: 6:24:14, time: 1.612, data_time: 1.016, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9667, loss_cls: 0.9471, loss: 0.9471, grad_norm: 10.8308
+2022-04-13 02:40:46,671 - mmaction - INFO - Epoch [101][240/768]	lr: 1.000e-04, eta: 6:23:40, time: 1.609, data_time: 1.012, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9833, loss_cls: 0.9121, loss: 0.9121, grad_norm: 11.0805
+2022-04-13 02:41:19,265 - mmaction - INFO - Epoch [101][260/768]	lr: 1.000e-04, eta: 6:23:08, time: 1.630, data_time: 1.037, memory: 2392, top1_acc: 0.7167, top5_acc: 0.9333, loss_cls: 1.0818, loss: 1.0818, grad_norm: 12.3676
+2022-04-13 02:41:50,508 - mmaction - INFO - Epoch [101][280/768]	lr: 1.000e-04, eta: 6:22:31, time: 1.562, data_time: 0.967, memory: 2392, top1_acc: 0.7000, top5_acc: 0.9667, loss_cls: 0.9281, loss: 0.9281, grad_norm: 11.9740
+2022-04-13 02:42:23,254 - mmaction - INFO - Epoch [101][300/768]	lr: 1.000e-04, eta: 6:21:59, time: 1.638, data_time: 1.043, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9667, loss_cls: 0.9185, loss: 0.9185, grad_norm: 10.9147
+2022-04-13 02:42:56,164 - mmaction - INFO - Epoch [101][320/768]	lr: 1.000e-04, eta: 6:21:27, time: 1.645, data_time: 1.051, memory: 2392, top1_acc: 0.9000, top5_acc: 0.9667, loss_cls: 0.6946, loss: 0.6946, grad_norm: 8.8760
+2022-04-13 02:43:28,180 - mmaction - INFO - Epoch [101][340/768]	lr: 1.000e-04, eta: 6:20:53, time: 1.602, data_time: 1.010, memory: 2392, top1_acc: 0.7000, top5_acc: 0.9667, loss_cls: 1.0041, loss: 1.0041, grad_norm: 11.5794
+2022-04-13 02:44:00,599 - mmaction - INFO - Epoch [101][360/768]	lr: 1.000e-04, eta: 6:20:20, time: 1.620, data_time: 1.025, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9833, loss_cls: 0.8108, loss: 0.8108, grad_norm: 10.6478
+2022-04-13 02:44:33,850 - mmaction - INFO - Epoch [101][380/768]	lr: 1.000e-04, eta: 6:19:50, time: 1.663, data_time: 1.066, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.7504, loss: 0.7504, grad_norm: 10.3449
+2022-04-13 02:45:07,661 - mmaction - INFO - Epoch [101][400/768]	lr: 1.000e-04, eta: 6:19:21, time: 1.690, data_time: 1.095, memory: 2392, top1_acc: 0.8000, top5_acc: 1.0000, loss_cls: 0.8110, loss: 0.8110, grad_norm: 10.6695
+2022-04-13 02:45:39,608 - mmaction - INFO - Epoch [101][420/768]	lr: 1.000e-04, eta: 6:18:47, time: 1.598, data_time: 1.003, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9500, loss_cls: 0.8330, loss: 0.8330, grad_norm: 10.4259
+2022-04-13 02:46:12,606 - mmaction - INFO - Epoch [101][440/768]	lr: 1.000e-04, eta: 6:18:16, time: 1.650, data_time: 1.053, memory: 2392, top1_acc: 0.7667, top5_acc: 1.0000, loss_cls: 0.8068, loss: 0.8068, grad_norm: 11.7790
+2022-04-13 02:46:46,418 - mmaction - INFO - Epoch [101][460/768]	lr: 1.000e-04, eta: 6:17:47, time: 1.691, data_time: 1.097, memory: 2392, top1_acc: 0.8000, top5_acc: 1.0000, loss_cls: 0.7757, loss: 0.7757, grad_norm: 10.6946
+2022-04-13 02:47:20,119 - mmaction - INFO - Epoch [101][480/768]	lr: 1.000e-04, eta: 6:17:18, time: 1.685, data_time: 1.086, memory: 2392, top1_acc: 0.8167, top5_acc: 1.0000, loss_cls: 0.6867, loss: 0.6867, grad_norm: 9.6102
+2022-04-13 02:47:52,469 - mmaction - INFO - Epoch [101][500/768]	lr: 1.000e-04, eta: 6:16:45, time: 1.617, data_time: 1.022, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9500, loss_cls: 0.7450, loss: 0.7450, grad_norm: 9.6771
+2022-04-13 02:48:25,587 - mmaction - INFO - Epoch [101][520/768]	lr: 1.000e-04, eta: 6:16:14, time: 1.655, data_time: 1.062, memory: 2392, top1_acc: 0.9167, top5_acc: 0.9833, loss_cls: 0.5372, loss: 0.5372, grad_norm: 8.0906
+2022-04-13 02:48:59,078 - mmaction - INFO - Epoch [101][540/768]	lr: 1.000e-04, eta: 6:15:44, time: 1.675, data_time: 1.077, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9500, loss_cls: 0.9123, loss: 0.9123, grad_norm: 11.4550
+2022-04-13 02:49:31,777 - mmaction - INFO - Epoch [101][560/768]	lr: 1.000e-04, eta: 6:15:12, time: 1.636, data_time: 1.036, memory: 2392, top1_acc: 0.8000, top5_acc: 0.9500, loss_cls: 0.8360, loss: 0.8360, grad_norm: 10.8076
+2022-04-13 02:50:05,245 - mmaction - INFO - Epoch [101][580/768]	lr: 1.000e-04, eta: 6:14:42, time: 1.673, data_time: 1.081, memory: 2392, top1_acc: 0.8667, top5_acc: 0.9167, loss_cls: 0.7639, loss: 0.7639, grad_norm: 9.0893
+2022-04-13 02:50:37,864 - mmaction - INFO - Epoch [101][600/768]	lr: 1.000e-04, eta: 6:14:10, time: 1.631, data_time: 1.034, memory: 2392, top1_acc: 0.8833, top5_acc: 1.0000, loss_cls: 0.6047, loss: 0.6047, grad_norm: 9.3168
+2022-04-13 02:51:11,440 - mmaction - INFO - Epoch [101][620/768]	lr: 1.000e-04, eta: 6:13:41, time: 1.679, data_time: 1.082, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.6986, loss: 0.6986, grad_norm: 9.3803
+2022-04-13 02:51:43,278 - mmaction - INFO - Epoch [101][640/768]	lr: 1.000e-04, eta: 6:13:06, time: 1.591, data_time: 0.993, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.8013, loss: 0.8013, grad_norm: 9.1771
+2022-04-13 02:52:15,247 - mmaction - INFO - Epoch [101][660/768]	lr: 1.000e-04, eta: 6:12:31, time: 1.598, data_time: 1.002, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.7861, loss: 0.7861, grad_norm: 9.8509
+2022-04-13 02:52:49,843 - mmaction - INFO - Epoch [101][680/768]	lr: 1.000e-04, eta: 6:12:05, time: 1.731, data_time: 1.135, memory: 2392, top1_acc: 0.8667, top5_acc: 1.0000, loss_cls: 0.5763, loss: 0.5763, grad_norm: 9.1898
+2022-04-13 02:53:26,286 - mmaction - INFO - Epoch [101][700/768]	lr: 1.000e-04, eta: 6:11:44, time: 1.822, data_time: 1.218, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9833, loss_cls: 0.7318, loss: 0.7318, grad_norm: 9.8834
+2022-04-13 02:54:04,407 - mmaction - INFO - Epoch [101][720/768]	lr: 1.000e-04, eta: 6:11:28, time: 1.905, data_time: 1.298, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9833, loss_cls: 0.7276, loss: 0.7276, grad_norm: 10.4213
+2022-04-13 02:54:39,752 - mmaction - INFO - Epoch [101][740/768]	lr: 1.000e-04, eta: 6:11:03, time: 1.767, data_time: 1.164, memory: 2392, top1_acc: 0.8333, top5_acc: 1.0000, loss_cls: 0.6867, loss: 0.6867, grad_norm: 9.3394
+2022-04-13 02:55:11,622 - mmaction - INFO - Epoch [101][760/768]	lr: 1.000e-04, eta: 6:10:28, time: 1.594, data_time: 0.999, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9667, loss_cls: 0.6928, loss: 0.6928, grad_norm: 9.6320
+2022-04-13 02:55:25,455 - mmaction - INFO - Saving checkpoint at 101 epochs
+2022-04-13 03:00:57,580 - mmaction - INFO - Epoch(val) [101][192]	top1_acc: 0.9167, top5_acc: 1.0000, loss_cls: 0.3003, loss: 0.3003
+2022-04-13 03:01:37,466 - mmaction - INFO - Epoch [102][20/768]	lr: 1.000e-04, eta: 6:09:25, time: 1.993, data_time: 1.393, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.7975, loss: 0.7975, grad_norm: 12.2111
+2022-04-13 03:02:09,311 - mmaction - INFO - Epoch [102][40/768]	lr: 1.000e-04, eta: 6:08:50, time: 1.592, data_time: 0.994, memory: 2392, top1_acc: 0.8667, top5_acc: 1.0000, loss_cls: 0.6643, loss: 0.6643, grad_norm: 9.3769
+2022-04-13 03:02:42,216 - mmaction - INFO - Epoch [102][60/768]	lr: 1.000e-04, eta: 6:08:19, time: 1.646, data_time: 1.047, memory: 2392, top1_acc: 0.8833, top5_acc: 1.0000, loss_cls: 0.5157, loss: 0.5157, grad_norm: 9.0488
+2022-04-13 03:03:15,575 - mmaction - INFO - Epoch [102][80/768]	lr: 1.000e-04, eta: 6:07:48, time: 1.667, data_time: 1.069, memory: 2392, top1_acc: 0.8000, top5_acc: 0.9667, loss_cls: 0.7758, loss: 0.7758, grad_norm: 10.2238
+2022-04-13 03:03:48,746 - mmaction - INFO - Epoch [102][100/768]	lr: 1.000e-04, eta: 6:07:17, time: 1.658, data_time: 1.065, memory: 2392, top1_acc: 0.8000, top5_acc: 0.9333, loss_cls: 0.7578, loss: 0.7578, grad_norm: 10.7535
+2022-04-13 03:04:20,332 - mmaction - INFO - Epoch [102][120/768]	lr: 1.000e-04, eta: 6:06:42, time: 1.580, data_time: 0.984, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.7028, loss: 0.7028, grad_norm: 10.3384
+2022-04-13 03:04:53,008 - mmaction - INFO - Epoch [102][140/768]	lr: 1.000e-04, eta: 6:06:09, time: 1.633, data_time: 1.036, memory: 2392, top1_acc: 0.7667, top5_acc: 1.0000, loss_cls: 0.8038, loss: 0.8038, grad_norm: 12.1568
+2022-04-13 03:05:22,933 - mmaction - INFO - Epoch [102][160/768]	lr: 1.000e-04, eta: 6:05:29, time: 1.497, data_time: 0.901, memory: 2392, top1_acc: 0.7500, top5_acc: 1.0000, loss_cls: 0.7240, loss: 0.7240, grad_norm: 10.1732
+2022-04-13 03:05:55,013 - mmaction - INFO - Epoch [102][180/768]	lr: 1.000e-04, eta: 6:04:55, time: 1.603, data_time: 1.005, memory: 2392, top1_acc: 0.8333, top5_acc: 1.0000, loss_cls: 0.5968, loss: 0.5968, grad_norm: 8.7927
+2022-04-13 03:06:29,319 - mmaction - INFO - Epoch [102][200/768]	lr: 1.000e-04, eta: 6:04:27, time: 1.716, data_time: 1.119, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9333, loss_cls: 0.7073, loss: 0.7073, grad_norm: 9.4370
+2022-04-13 03:07:01,926 - mmaction - INFO - Epoch [102][220/768]	lr: 1.000e-04, eta: 6:03:54, time: 1.630, data_time: 1.034, memory: 2392, top1_acc: 0.8000, top5_acc: 0.9833, loss_cls: 0.6013, loss: 0.6013, grad_norm: 8.7668
+2022-04-13 03:07:34,925 - mmaction - INFO - Epoch [102][240/768]	lr: 1.000e-04, eta: 6:03:23, time: 1.649, data_time: 1.051, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9667, loss_cls: 0.5924, loss: 0.5924, grad_norm: 9.3658
+2022-04-13 03:08:07,719 - mmaction - INFO - Epoch [102][260/768]	lr: 1.000e-04, eta: 6:02:51, time: 1.640, data_time: 1.041, memory: 2392, top1_acc: 0.8333, top5_acc: 1.0000, loss_cls: 0.5598, loss: 0.5598, grad_norm: 9.1770
+2022-04-13 03:08:40,087 - mmaction - INFO - Epoch [102][280/768]	lr: 1.000e-04, eta: 6:02:17, time: 1.618, data_time: 1.019, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.6437, loss: 0.6437, grad_norm: 9.1237
+2022-04-13 03:09:13,823 - mmaction - INFO - Epoch [102][300/768]	lr: 1.000e-04, eta: 6:01:48, time: 1.687, data_time: 1.089, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.5489, loss: 0.5489, grad_norm: 8.9516
+2022-04-13 03:09:45,552 - mmaction - INFO - Epoch [102][320/768]	lr: 1.000e-04, eta: 6:01:13, time: 1.587, data_time: 0.990, memory: 2392, top1_acc: 0.8500, top5_acc: 1.0000, loss_cls: 0.5804, loss: 0.5804, grad_norm: 9.4443
+2022-04-13 03:10:18,443 - mmaction - INFO - Epoch [102][340/768]	lr: 1.000e-04, eta: 6:00:41, time: 1.644, data_time: 1.049, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9833, loss_cls: 0.6271, loss: 0.6271, grad_norm: 9.7655
+2022-04-13 03:10:49,845 - mmaction - INFO - Epoch [102][360/768]	lr: 1.000e-04, eta: 6:00:05, time: 1.570, data_time: 0.972, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9667, loss_cls: 0.6998, loss: 0.6998, grad_norm: 9.4363
+2022-04-13 03:11:21,949 - mmaction - INFO - Epoch [102][380/768]	lr: 1.000e-04, eta: 5:59:31, time: 1.606, data_time: 1.008, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9667, loss_cls: 0.7293, loss: 0.7293, grad_norm: 10.2522
+2022-04-13 03:11:55,214 - mmaction - INFO - Epoch [102][400/768]	lr: 1.000e-04, eta: 5:59:00, time: 1.664, data_time: 1.065, memory: 2392, top1_acc: 0.8333, top5_acc: 1.0000, loss_cls: 0.6203, loss: 0.6203, grad_norm: 9.4338
+2022-04-13 03:12:27,619 - mmaction - INFO - Epoch [102][420/768]	lr: 1.000e-04, eta: 5:58:27, time: 1.619, data_time: 1.023, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9333, loss_cls: 0.8651, loss: 0.8651, grad_norm: 10.1620
+2022-04-13 03:13:00,742 - mmaction - INFO - Epoch [102][440/768]	lr: 1.000e-04, eta: 5:57:56, time: 1.655, data_time: 1.059, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9833, loss_cls: 0.6594, loss: 0.6594, grad_norm: 8.7624
+2022-04-13 03:13:33,647 - mmaction - INFO - Epoch [102][460/768]	lr: 1.000e-04, eta: 5:57:24, time: 1.645, data_time: 1.049, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9833, loss_cls: 0.7871, loss: 0.7871, grad_norm: 11.3065
+2022-04-13 03:14:06,285 - mmaction - INFO - Epoch [102][480/768]	lr: 1.000e-04, eta: 5:56:52, time: 1.632, data_time: 1.036, memory: 2392, top1_acc: 0.8333, top5_acc: 1.0000, loss_cls: 0.6505, loss: 0.6505, grad_norm: 10.3647
+2022-04-13 03:14:39,362 - mmaction - INFO - Epoch [102][500/768]	lr: 1.000e-04, eta: 5:56:20, time: 1.654, data_time: 1.060, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.6517, loss: 0.6517, grad_norm: 9.8513
+2022-04-13 03:15:12,815 - mmaction - INFO - Epoch [102][520/768]	lr: 1.000e-04, eta: 5:55:50, time: 1.673, data_time: 1.075, memory: 2392, top1_acc: 0.7500, top5_acc: 0.9833, loss_cls: 0.7400, loss: 0.7400, grad_norm: 10.1090
+2022-04-13 03:15:44,713 - mmaction - INFO - Epoch [102][540/768]	lr: 1.000e-04, eta: 5:55:15, time: 1.595, data_time: 0.997, memory: 2392, top1_acc: 0.7667, top5_acc: 0.9833, loss_cls: 0.7081, loss: 0.7081, grad_norm: 9.7732
+2022-04-13 03:16:16,606 - mmaction - INFO - Epoch [102][560/768]	lr: 1.000e-04, eta: 5:54:41, time: 1.595, data_time: 0.996, memory: 2392, top1_acc: 0.7833, top5_acc: 0.9333, loss_cls: 0.8047, loss: 0.8047, grad_norm: 10.2806
+2022-04-13 03:16:48,369 - mmaction - INFO - Epoch [102][580/768]	lr: 1.000e-04, eta: 5:54:06, time: 1.589, data_time: 0.991, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.6407, loss: 0.6407, grad_norm: 9.9568
+2022-04-13 03:17:20,098 - mmaction - INFO - Epoch [102][600/768]	lr: 1.000e-04, eta: 5:53:31, time: 1.586, data_time: 0.991, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9500, loss_cls: 0.7285, loss: 0.7285, grad_norm: 9.6801
+2022-04-13 03:17:52,077 - mmaction - INFO - Epoch [102][620/768]	lr: 1.000e-04, eta: 5:52:57, time: 1.598, data_time: 1.003, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9833, loss_cls: 0.6175, loss: 0.6175, grad_norm: 10.2961
+2022-04-13 03:18:25,187 - mmaction - INFO - Epoch [102][640/768]	lr: 1.000e-04, eta: 5:52:26, time: 1.655, data_time: 1.060, memory: 2392, top1_acc: 0.8500, top5_acc: 1.0000, loss_cls: 0.6122, loss: 0.6122, grad_norm: 9.8051
+2022-04-13 03:18:56,379 - mmaction - INFO - Epoch [102][660/768]	lr: 1.000e-04, eta: 5:51:50, time: 1.560, data_time: 0.964, memory: 2392, top1_acc: 0.8833, top5_acc: 1.0000, loss_cls: 0.6144, loss: 0.6144, grad_norm: 9.5147
+2022-04-13 03:19:29,833 - mmaction - INFO - Epoch [102][680/768]	lr: 1.000e-04, eta: 5:51:19, time: 1.673, data_time: 1.075, memory: 2392, top1_acc: 0.8167, top5_acc: 0.9667, loss_cls: 0.7907, loss: 0.7907, grad_norm: 9.3234
+2022-04-13 03:20:03,113 - mmaction - INFO - Epoch [102][700/768]	lr: 1.000e-04, eta: 5:50:48, time: 1.664, data_time: 1.068, memory: 2392, top1_acc: 0.8333, top5_acc: 0.9833, loss_cls: 0.6837, loss: 0.6837, grad_norm: 11.7288
+2022-04-13 03:20:35,829 - mmaction - INFO - Epoch [102][720/768]	lr: 1.000e-04, eta: 5:50:16, time: 1.636, data_time: 1.041, memory: 2392, top1_acc: 0.8833, top5_acc: 0.9667, loss_cls: 0.6022, loss: 0.6022, grad_norm: 9.4126
+2022-04-13 03:21:08,851 - mmaction - INFO - Epoch [102][740/768]	lr: 1.000e-04, eta: 5:49:44, time: 1.651, data_time: 1.054, memory: 2392, top1_acc: 0.9000, top5_acc: 0.9833, loss_cls: 0.4846, loss: 0.4846, grad_norm: 7.8446
+2022-04-13 03:21:40,786 - mmaction - INFO - Epoch [102][760/768]	lr: 1.000e-04, eta: 5:49:10, time: 1.597, data_time: 0.998, memory: 2392, top1_acc: 0.8833, top5_acc: 1.0000, loss_cls: 0.4996, loss: 0.4996, grad_norm: 7.6923
+2022-04-13 03:21:53,559 - mmaction - INFO - Saving checkpoint at 102 epochs
+2022-04-13 03:27:18,576 - mmaction - INFO - Epoch(val) [102][192]	top1_acc: 0.9184, top5_acc: 0.9948, loss_cls: 0.2693, loss: 0.2693
+2022-04-13 03:27:58,881 - mmaction - INFO - Epoch [103][20/768]	lr: 1.000e-04, eta: 5:48:12, time: 2.015, data_time: 1.417, memory: 2392, top1_acc: 0.7833, top5_acc: 1.0000, loss_cls: 0.6012, loss: 0.6012, grad_norm: 8.7282
+2022-04-13 03:28:32,164 - mmaction - INFO - Epoch [103][40/768]	lr: 1.000e-04, eta: 5:47:41, time: 1.663, data_time: 1.066, memory: 2392, top1_acc: 0.9000, top5_acc: 1.0000, loss_cls: 0.4408, loss: 0.4408, grad_norm: 7.9990
+2022-04-13 03:29:05,562 - mmaction - INFO - Epoch [103][60/768]	lr: 1.000e-04, eta: 5:47:10, time: 1.670, data_time: 1.076, memory: 2392, top1_acc: 0.8500, top5_acc: 0.9833, loss_cls: 0.5947, loss: 0.5947, grad_norm: 8.3859
+2022-04-13 03:29:38,163 - mmaction - INFO - Epoch [103][80/768]	lr: 1.000e-04, eta: 5:46:38, time: 1.630, data_time: 1.034, memory: 2392, top1_acc: 0.9333, top5_acc: 0.9667, loss_cls: 0.3695, loss: 0.3695, grad_norm: 6.1881
