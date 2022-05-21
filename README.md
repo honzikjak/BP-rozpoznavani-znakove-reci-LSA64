@@ -30,7 +30,7 @@ Pokud ne, přenastavte ve skriptu data_distribution_setup_lsa64 proměnnou CHOSE
 Například:
 ```shell
 ../checkpoints/checkpoint_lsa64/tsn_r50_video_1x1x8_100e_lsa64_rgb_sgd.py
-../checkpoints/checkpoint_lsa64/best_checkpoints/sgd_te10_va3_119.pth
+../checkpoints/checkpoint_lsa64/latest.pth
 --eval top_k_accuracy
 ```
 
