@@ -20,12 +20,9 @@ Pro spuštění trénování spusťte skript tools/train.py. V argumentech nasta
 Například:
 ```shell
 ../checkpoints/checkpoint_lsa64/tsn_r50_video_1x1x8_100e_lsa64_rgb_sgd.py
---resume-from
-../checkpoints/tsn_r50_video_1x1x8_100e_kinetics400_rgb_20200702-568cde33.pth
---work-dir
-../checkpoints/checkpoint_lsa64
---gpus
-1
+--resume-from ../checkpoints/tsn_r50_video_1x1x8_100e_kinetics400_rgb_20200702-568cde33.pth
+--work-dir ../checkpoints/checkpoint_lsa64
+--gpus 1
 ```
 
 Pro spuštění testování spusťte skript tools/test.py. Před spuštěním se ale ujistěte, že máte stejně anotovaná videa, jako byla při trénování které vedlo k checkpointu.
@@ -34,8 +31,7 @@ Například:
 ```shell
 ../checkpoints/checkpoint_lsa64/tsn_r50_video_1x1x8_100e_lsa64_rgb_sgd.py
 ../checkpoints/checkpoint_lsa64/best_checkpoints/sgd_te10_va3_119.pth
---eval
-top_k_accuracy
+--eval top_k_accuracy
 ```
 
 Pro zobrazení grafů z trénování spusťte skript tools/train_resoults.py, ve kterém můžete nastavit v proměnné PATH cestu k json souboru z trénování. Pro tyto json soubory se můžete podívat na jejich využitý model v jejich stejnojmeném log souboru. Dále můžete nastavit PICKLE_DUMP na True, pokud chcete uložit křivky průběhu validace do pickle souborů. Tyto soubory jsou pak používány pro analýzu cross-validace.
