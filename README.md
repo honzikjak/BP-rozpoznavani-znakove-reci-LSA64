@@ -16,7 +16,7 @@ Dataset LSA64 stáhněte na stránce: http://facundoq.github.io/datasets/lsa64/.
 
 Checkpoint předtrénovaný na datasetu kinetics400 stáhněte na stránce: https://download.openmmlab.com/mmaction/recognition/tsn/tsn_r50_video_1x1x8_100e_kinetics400_rgb/tsn_r50_video_1x1x8_100e_kinetics400_rgb_20200702-568cde33.pth.
 
-Výsledné checkpointy z práce jsou k dispozici na stránce: https://drive.google.com/drive/folders/1wZmCboQGng4dj9OF6GNglv_1SDdeSMZy?usp=sharing
+Výsledné checkpointy z práce jsou k dispozici na stránce: https://drive.google.com/drive/folders/1wZmCboQGng4dj9OF6GNglv_1SDdeSMZy?usp=sharing. V jejich názvu jsou obsaženy informace o optimalizátoru, vybraném figurantovi pro trénování (číslo následující po "te"), vybraném videu pro validaci (číslo následující po "va") a z jaké epochy checkpoint je.
 
 Pro spuštění trénování spusťte skript tools/train.py. V argumentech nastavte model, checkpoint, pracovní adresář, počet gpu. 
 Například:
