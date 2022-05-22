@@ -17,14 +17,14 @@ model = dict(
     test_cfg=dict(average_clips=None))
 optimizer = dict(
     type='Adam',
-    lr=0.001,
+    lr=1e-05,
     betas=(0.9, 0.999),
     eps=1e-08,
     weight_decay=0,
     amsgrad=False)
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
-lr_config = dict(policy='step', step=[150])
-total_epochs = 140
+lr_config = dict(policy='step', step=None)
+total_epochs = 130
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook')])
 dist_params = dict(backend='nccl')
