@@ -12,7 +12,7 @@ Rozpoznávání datasetu LSA64 pomocí frameworku MMAction2. V tomto repozitář
 # Návod na použití
 Pro použití je potřeba nainstalovat použitý software a přesunout soubory z tohoto repozitáře do složky MMAction2.
 
-Dataset LSA64 stáhněte na stránce: http://facundoq.github.io/datasets/lsa64/. Ve složce data/lsa64/ vytvořte složky lsa64_train, lsa64_test, lsa64_val a vložte videa z datasetu do jedné z těchto složek. Poté spusťte data_distribution_setup_lsa64. Tento skript rozdělí data do složek tak, že do testovací množiny vloží všechna videa od jednoho figuranta určeného proměnnou CHOSEN_TEST_PERSON, ze zbytku vybere od každého figuranta jedno video určené proměnou CHOSEN_VAL_VID, které vloží do validační množiny, ostatní videa zůstanou v trénovací množině. Pro změnu figuranta na testování či videa pro validaci změňte hodnoty těchto proměnných 
+Dataset LSA64 stáhněte na stránce: http://facundoq.github.io/datasets/lsa64/. Ve složce data/lsa64/ vytvořte složky lsa64_train, lsa64_test, lsa64_val a vložte videa z datasetu do jedné z těchto složek. Poté spusťte data/lsa64/data_distribution_setup_lsa64.py. Tento skript rozdělí data do složek tak, že do testovací množiny vloží všechna videa od jednoho figuranta určeného proměnnou CHOSEN_TEST_PERSON, ze zbytku vybere od každého figuranta jedno video určené proměnou CHOSEN_VAL_VID, které vloží do validační množiny, ostatní videa zůstanou v trénovací množině. Pro změnu figuranta na testování či videa pro validaci změňte hodnoty těchto proměnných 
 
 Checkpoint předtrénovaný na datasetu kinetics400 stáhněte na stránce: https://download.openmmlab.com/mmaction/recognition/tsn/tsn_r50_video_1x1x8_100e_kinetics400_rgb/tsn_r50_video_1x1x8_100e_kinetics400_rgb_20200702-568cde33.pth.
 
@@ -28,7 +28,7 @@ Například:
 ```
 
 Pro spuštění testování spusťte skript tools/test.py. Před spuštěním se ale ujistěte, že máte stejně anotovaná videa, jako byla při trénování které vedlo k checkpointu.
-Pokud ne, přenastavte ve skriptu data_distribution_setup_lsa64 proměnnou CHOSEN_TEST_PERSON na ID testovacího figuranta. V argumentech nastavte model, checkpoint, typ vyhodnocení
+Pokud ne, přenastavte ve skriptu data_distribution_setup_lsa64.py proměnnou CHOSEN_TEST_PERSON na ID testovacího figuranta. V argumentech nastavte model, checkpoint, typ vyhodnocení
 Například:
 ```shell
 ../checkpoints/checkpoint_lsa64/tsn_r50_video_1x1x8_100e_lsa64_rgb_sgd.py
